@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>오버워치 전략 가이드</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 오버워치 맵별 전략 가이드</h1>
+        <p>맵을 선택하면 추천 영웅과 조합, 주요 전략을 알려드립니다.</p>
+        
+        <select id="mapSelect">
+            <option value="">맵을 선택하세요</option>
+            <option value="kingsRow">왕의 길 (King's Row)</option>
+            <option value="ilios">일리오스 (Ilios)</option>
+            <option value="dorado">도라도 (Dorado)</option>
+        </select>
+        
+        <button id="searchBtn">전략 보기</button>
+
+        <div id="resultBox" class="hidden">
+            <h2 id="mapTitle">맵 이름</h2>
+            <h3>💡 주요 전략</h3>
+            <p id="strategyText">전략 내용이 여기에 표시됩니다.</p>
+            <h3>🛡️ 추천 조합</h3>
+            <p id="compText">추천 조합이 여기에 표시됩니다.</p>
+            <h3>⭐ 추천 영웅</h3>
+            <ul id="heroList"></ul>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
