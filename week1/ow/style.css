@@ -1,64 +1,188 @@
+/* 오버워치 스타일 테마 및 초기화 */
+:root {
+    --ow-orange: #f99e1a;
+    --ow-orange-hover: #e08b15;
+    --ow-dark: #28323f;
+    --ow-bg: #1c232c;
+    --ow-text: #f4f6f8;
+    --card-bg: #323e4f;
+}
+
 body {
     font-family: 'Malgun Gothic', sans-serif;
-    background-color: #f4f6f8;
-    color: #333;
+    background-color: var(--ow-bg);
+    color: var(--ow-text);
     display: flex;
-    justify-content: center;
-    padding: 50px 20px;
+    flex-direction: column;
+    align-items: center;
+    padding: 0;
+    margin: 0;
+    min-height: 100vh;
+}
+
+.header {
+    background-color: var(--ow-dark);
+    width: 100%;
+    text-align: center;
+    padding: 30px 20px;
+    border-bottom: 4px solid var(--ow-orange);
+    margin-bottom: 20px;
+}
+
+.header h1 {
+    color: var(--ow-orange);
+    margin: 0 0 10px 0;
+    font-size: 2.5em;
+    font-style: italic;
+}
+
+.header p {
+    margin: 0;
+    color: #e0e6ed; /* 가독성 개선: 밝은 회색으로 변경 */
 }
 
 .container {
-    background: white;
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    max-width: 500px;
+    max-width: 900px;
     width: 100%;
-}
-
-h1 {
-    color: #f99e1a; /* 오버워치 상징 컬러 */
-    text-align: center;
-}
-
-select, button {
-    padding: 12px;
-    margin: 10px 0;
-    width: 100%;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    font-size: 16px;
+    padding: 0 20px 50px 20px;
     box-sizing: border-box;
 }
 
-button {
-    background-color: #f99e1a;
-    color: white;
-    border: none;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.2s;
+.step-section {
+    margin-bottom: 40px;
 }
 
-button:hover {
-    background-color: #e08b15;
+.step-section h2 {
+    border-bottom: 2px solid var(--ow-orange);
+    padding-bottom: 10px;
+    color: var(--ow-orange);
+}
+
+.disabled {
+    opacity: 0.3;
+    pointer-events: none;
+    transition: opacity 0.3s;
+}
+
+/* 맵 카테고리 타이틀 */
+.map-category {
+    margin-bottom: 30px;
+}
+
+.map-category-title {
+    color: #e0e6ed;
+    font-size: 1.2em;
+    margin-bottom: 15px;
+    border-left: 4px solid var(--ow-orange);
+    padding-left: 10px;
+}
+
+/* 맵 타일 그리드 */
+.map-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 10px;
+}
+
+.map-btn {
+    background-color: var(--card-bg);
+    color: #ffffff; /* 가독성 개선: 흰색 명시 */
+    border: 2px solid transparent;
+    padding: 0;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.2s;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.map-image {
+    width: 100%;
+    height: 80px;
+    object-fit: cover;
+    background-color: var(--ow-dark);
+}
+
+.map-name {
+    padding: 12px 5px;
+    text-align: center;
+    font-size: 0.9em;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.map-btn:hover {
+    background-color: #435368;
+}
+
+.map-btn.selected {
+    border-color: var(--ow-orange);
+    background-color: var(--ow-orange);
+    color: #fff;
+}
+
+/* 역할군 버튼 */
+.role-buttons {
+    display: flex;
+    gap: 15px;
+}
+
+.role-btn {
+    flex: 1;
+    background-color: var(--card-bg);
+    color: #ffffff; /* 가독성 개선 */
+    border: 2px solid transparent;
+    padding: 20px;
+    font-size: 1.1em;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.role-btn:hover {
+    border-color: var(--ow-orange);
+}
+
+.role-btn.selected {
+    background-color: var(--ow-orange);
+    color: #fff;
 }
 
 .hidden {
     display: none;
 }
 
-#resultBox {
-    margin-top: 25px;
-    padding-top: 20px;
-    border-top: 2px dashed #ddd;
+/* 결과창 카드 레이아웃 */
+.card {
+    background-color: var(--card-bg);
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    color: #ffffff; /* 카드 내부 텍스트 밝게 조정 */
 }
 
-h3 {
-    margin-bottom: 5px;
-    color: #444;
+.card h3 {
+    margin-top: 0;
+    color: var(--ow-orange);
 }
 
-ul {
+.card ul {
     padding-left: 20px;
+}
+
+.role-content-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 15px;
+}
+
+@media (max-width: 768px) {
+    .role-content-grid {
+        grid-template-columns: 1fr;
+    }
+    .role-buttons {
+        flex-direction: column;
+    }
 }

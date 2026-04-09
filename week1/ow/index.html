@@ -7,68 +7,41 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <h1>🎯 오버워치 맵별 전략 가이드</h1>
-        <p>맵을 선택하면 추천 영웅과 조합, 주요 전략을 알려드립니다.</p>
-        
-        <select id="mapSelect">
-            <option value="">맵을 선택하세요</option>
-            <option value="kingsRow">왕의 길 (King's Row)</option>
-            <option value="ilios">일리오스 (Ilios)</option>
-            <option value="dorado">도라도 (Dorado)</option>
-            <optgroup label="쟁탈 (Control)">
-                <option value="ilios">일리오스 (Ilios)</option>
-                <option value="lijiangTower">리장 타워 (Lijiang Tower)</option>
-                <option value="nepal">네팔 (Nepal)</option>
-                <option value="oasis">오아시스 (Oasis)</option>
-                <option value="busan">부산 (Busan)</option>
-                <option value="antarcticPeninsula">남극 반도 (Antarctic Peninsula)</option>
-                <option value="samoa">사모아 (Samoa)</option>
-            </optgroup>
-            <optgroup label="호위 (Escort)">
-                <option value="dorado">도라도 (Dorado)</option>
-                <option value="route66">66번 국도 (Route 66)</option>
-                <option value="gibraltar">감시기지: 지브롤터 (Gibraltar)</option>
-                <option value="havana">아바나 (Havana)</option>
-                <option value="rialto">리알토 (Rialto)</option>
-                <option value="junkertown">쓰레기촌 (Junkertown)</option>
-                <option value="circuitRoyal">서킷 로얄 (Circuit Royal)</option>
-                <option value="shambali">샴발리 수도원 (Shambali)</option>
-            </optgroup>
-            <optgroup label="혼합 (Hybrid)">
-                <option value="kingsRow">왕의 길 (King's Row)</option>
-                <option value="numbani">눔바니 (Numbani)</option>
-                <option value="hollywood">할리우드 (Hollywood)</option>
-                <option value="eichenwalde">아이헨발데 (Eichenwalde)</option>
-                <option value="blizzardWorld">블리자드 월드 (Blizzard World)</option>
-                <option value="midtown">미드타운 (Midtown)</option>
-                <option value="paraiso">파라이소 (Paraíso)</option>
-            </optgroup>
-            <optgroup label="밀기 (Push)">
-                <option value="colosseo">콜로세오 (Colosseo)</option>
-                <option value="newQueenStreet">뉴 퀸 스트리트 (New Queen Street)</option>
-                <option value="esperanca">에스페란사 (Esperança)</option>
-                <option value="runasapi">루나사피 (Runasapi)</option>
-            </optgroup>
-            <optgroup label="플래시포인트 & 격돌 (Flashpoint / Clash)">
-                <option value="suravasa">수라바사 (Suravasa)</option>
-                <option value="newJunkCity">뉴 정크 시티 (New Junk City)</option>
-                <option value="hanaoka">하나오카 (Hanaoka)</option>
-                <option value="anubis">아누비스의 왕좌 (Throne of Anubis)</option>
-            </optgroup>
-        </select>
-        
-        <button id="searchBtn">전략 보기</button>
+    <header class="header">
+        <h1>🎯 OW-MAP MASTER</h1>
+        <p>맵과 역할군을 고르면 승리 전략이 보입니다.</p>
+    </header>
 
-        <div id="resultBox" class="hidden">
-            <h2 id="mapTitle">맵 이름</h2>
-            <h3>💡 주요 전략</h3>
-            <p id="strategyText">전략 내용이 여기에 표시됩니다.</p>
-            <h3>🛡️ 추천 조합</h3>
-            <p id="compText">추천 조합이 여기에 표시됩니다.</p>
-            <h3>⭐ 추천 영웅</h3>
-            <ul id="heroList"></ul>
-        </div>
+    <div class="container">
+        <!-- Step 1: 맵 선택 -->
+        <section class="step-section" id="step1">
+            <h2>Step 1. 맵 선택</h2>
+            <div id="mapGrid"></div>
+        </section>
+
+        <!-- Step 2: 역할군 선택 -->
+        <section class="step-section disabled" id="step2">
+            <h2>Step 2. 역할군 선택</h2>
+            <div class="role-buttons">
+                <button class="role-btn" data-role="tank">🛡️ 돌격 (Tank)</button>
+                <button class="role-btn" data-role="damage">⚔️ 공격 (Damage)</button>
+                <button class="role-btn" data-role="support">💉 지원 (Support)</button>
+            </div>
+        </section>
+
+        <!-- 결과창 -->
+        <section id="resultBox" class="hidden">
+            <h2 id="resultTitle" class="result-title">맵 이름 - 역할군 전략</h2>
+            
+            <div class="card strategy-card">
+                <h3>🗺️ 거점별 핵심 전략</h3>
+                <ul id="strategyList"></ul>
+            </div>
+
+            <div id="roleDataContent" class="role-content-grid">
+                <!-- JS에서 추천 영웅, 시너지, 카운터 내용이 렌더링됩니다 -->
+            </div>
+        </section>
     </div>
     <script src="script.js"></script>
 </body>
