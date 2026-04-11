@@ -8,25 +8,34 @@
 </head>
 <body>
     <header class="header">
-        <h1>🎯 OW-MAP MASTER</h1>
+        <h1>옵기본</h1>
         <p>맵과 역할군을 고르면 승리 전략이 보입니다.</p>
     </header>
 
     <div class="container">
-        <!-- Step 1: 맵 선택 -->
+        <!-- Step 1: 역할군 선택 -->
         <section class="step-section" id="step1">
-            <h2>Step 1. 맵 선택</h2>
-            <div id="mapGrid"></div>
+            <h2>Step 1. 역할군 선택</h2>
+            <div class="role-buttons">
+                <div class="role-item" data-role="tank">
+                    <img src="images/돌격.png" alt="돌격" class="role-icon">
+                    <span>돌격 (Tank)</span>
+                </div>
+                <div class="role-item" data-role="damage">
+                    <img src="images/공격.png" alt="공격" class="role-icon">
+                    <span>공격 (Damage)</span>
+                </div>
+                <div class="role-item" data-role="support">
+                    <img src="images/지원.png" alt="지원" class="role-icon">
+                    <span>지원 (Support)</span>
+                </div>
+            </div>
         </section>
 
-        <!-- Step 2: 역할군 선택 -->
+        <!-- Step 2: 맵 선택 -->
         <section class="step-section disabled" id="step2">
-            <h2>Step 2. 역할군 선택</h2>
-            <div class="role-buttons">
-                <button class="role-btn" data-role="tank">🛡️ 돌격 (Tank)</button>
-                <button class="role-btn" data-role="damage">⚔️ 공격 (Damage)</button>
-                <button class="role-btn" data-role="support">💉 지원 (Support)</button>
-            </div>
+            <h2>Step 2. 맵 선택</h2>
+            <div id="mapGrid"></div>
         </section>
 
         <!-- 결과창 -->
@@ -43,6 +52,6 @@
             </div>
         </section>
     </div>
-    <script src="script.js"></script>
+    <script src="script.js?v=202407"></script>
 </body>
 </html>

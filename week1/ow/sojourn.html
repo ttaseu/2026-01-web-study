@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>소전 (Sojourn) - 영웅 상세 분석</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="header">
+        <h1>옵기본</h1>
+        <p><a href="index.html" style="color: var(--ow-orange); text-decoration: none; font-weight: bold;">&larr; 맵 분석 메인으로 돌아가기</a></p>
+    </header>
+
+    <div class="container">
+        <!-- 1. 페이지 헤더 -->
+        <div class="hero-header-banner">
+            <img src="images/소전.webp" alt="소전" class="hero-detail-img" onerror="this.src='https://placehold.co/100x100/28323f/f99e1a?text=SJ'">
+            <div class="hero-detail-info">
+                <h2>소전 (Sojourn) <span class="badge badge-main-dps" style="font-size: 0.5em; vertical-align: middle;">⚔️ 공격 (Damage)</span></h2>
+                <div class="hero-stats">
+                    <span>💥 순간 화력: ★★★★★</span>
+                    <span>🛡️ 생존력: ★★★★★</span>
+                    <span>🎮 난이도: ★★★★☆</span>
+                </div>
+                <div class="hero-talents">
+                    <span class="talent-chip sub">#보조: 과충전</span>
+                    <span class="talent-chip main">#주요: 이중추진기</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. 핵심 운영 로직 -->
+        <div class="detail-section">
+            <div class="section-title">🧠 핵심 운영 로직 <span style="font-size: 0.6em; color: #cbd5e1;">(프로게이머 '슈이' 데이터 기반)</span></div>
+            
+            <h4 style="color: #00a8ff; margin-bottom: 8px;">[상대 조합별 원칙]</h4>
+            <ul style="line-height: 1.8; margin-bottom: 20px;">
+                <li><strong>포킹 조합 상대:</strong> 사이드 공간을 점유하고 아군과 각을 벌려 다각도 압박. 뭉치지 말고 광역 공격 피격 방지.</li>
+                <li><strong>다이브 조합 상대:</strong> 상대 진입 전 레일건으로 체력 깎기. 진입 시 슬라이딩으로 흘린 후 방벽/스킬이 빠진 직후 카운터 압박.</li>
+            </ul>
+
+            <h4 style="color: #00a8ff; margin-bottom: 8px;">[운영 루틴]</h4>
+            <ul style="line-height: 1.8;">
+                <li><strong>차징 샷 압박:</strong> 레일건 에너지를 들고 있는 것만으로 적의 이동 경로를 제한하는 심리적 압박 부여.</li>
+                <li><strong>궁극기(오버클럭):</strong> 1킬이라도 확실하면 즉시 사용. 수적 우위 확보 및 리스폰 꼬기 용도.</li>
+            </ul>
+        </div>
+
+        <!-- 3. 실전 상황별 알고리즘 -->
+        <div class="detail-section">
+            <div class="section-title">⚙️ 실전 상황별 알고리즘 (Decision Making)</div>
+            <ul style="line-height: 1.8;">
+                <li><strong style="color: #e74c3c;">진입 타이밍:</strong> 적 탱커의 이동기/방어 스킬 소모 확인 즉시 파워 슬라이드로 진입.</li>
+                <li><strong style="color: #e74c3c;">위험 감지:</strong> 아나의 수면총/힐밴 등 치명적 변수가 빠진 후 공격 전개.</li>
+                <li><strong style="color: #e74c3c;">전술적 후퇴:</strong> 탱커가 먼저 잘릴 경우 거점 포기 후 사이드로 넓게 돌아 재설계.</li>
+            </ul>
+        </div>
+
+        <!-- 4. 상세 상성 분석 (OP.GG 스타일 카드) -->
+        <div class="detail-section">
+            <div class="section-title">⚔️ 상세 상성 분석 <span style="font-size: 0.6em; color: #cbd5e1;">(카드를 클릭하면 상세 이유가 나옵니다)</span></div>
+            
+            <h4 style="color: #5383e8; margin-bottom: 10px;">🟢 상대하기 쉬운 영웅 (Easy)</h4>
+            <div class="matchup-grid" style="margin-bottom: 25px;">
+                <div class="matchup-card easy">
+                    <div class="matchup-header">🛡️ 도미나</div>
+                    <div class="matchup-reason">분열 사격으로 방벽 즉시 무력화.</div>
+                </div>
+                <div class="matchup-card easy">
+                    <div class="matchup-header">🐽 로드호그</div>
+                    <div class="matchup-reason">큰 피격 판정으로 레일건 에너지 충전소 활용 및 원거리 압살.</div>
+                </div>
+                <div class="matchup-card easy">
+                    <div class="matchup-header">🤖 바스티온</div>
+                    <div class="matchup-reason">느린 속도로 인해 분열 사격과 레일건의 완벽한 표적.</div>
+                </div>
+                <div class="matchup-card easy">
+                    <div class="matchup-header">👻 리퍼 / ❄️ 메이</div>
+                    <div class="matchup-reason">슬라이딩으로 기습을 쉽게 흘리며 사거리 우위 점유.</div>
+                </div>
+            </div>
+
+            <h4 style="color: #e84057; margin-bottom: 10px;">🔴 상대하기 까다로운 영웅 (Counter)</h4>
+            <div class="matchup-grid">
+                <div class="matchup-card counter">
+                    <div class="matchup-header">🐹 레킹볼</div>
+                    <div class="matchup-reason">빠른 이동과 파일드라이버로 소전의 생존 템포를 완벽히 파괴. (매우 불리)</div>
+                </div>
+                <div class="matchup-card counter">
+                    <div class="matchup-header">🐰 디바 (D.Va)</div>
+                    <div class="matchup-reason">방어 매트릭스로 투사체 차단 및 짧은 부스터 쿨타임으로 끝까지 추격.</div>
+                </div>
+                <div class="matchup-card counter">
+                    <div class="matchup-header">🌌 시그마</div>
+                    <div class="matchup-reason">유동적인 방벽과 키네틱 손아귀로 소전의 딜각을 지능적으로 차단.</div>
+                </div>
+                <div class="matchup-card counter">
+                    <div class="matchup-header">⚡ 트레이서 / 🗡️ 겐지</div>
+                    <div class="matchup-reason">소전의 좌클릭 투사체를 맞추기 어렵고 근접전 압박 극심.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. 스킬 활용 가이드 -->
+        <div class="detail-section">
+            <div class="section-title">💡 스킬 활용 가이드</div>
+            <ul style="line-height: 1.8;">
+                <li><strong>분열 사격 (E):</strong> 단순 딜링용이 아닌 적의 퇴로 차단 및 앞/뒷라인 분리 용도로 사용.</li>
+                <li><strong>파워 슬라이드 (Shift):</strong> 지형지물(2층) 점유 및 위기 탈출용으로 쿨타임 관리 필수.</li>
+            </ul>
+        </div>
+
+        <!-- 6. 맵 토글 섹션 -->
+        <button id="mapToggleBtn" class="role-btn" style="width: 100%; margin-top: 10px; background: var(--ow-dark);">
+            📍 맵별 소전 핵심 포지션 전략 보기
+        </button>
+        <div id="mapStrategySection" class="detail-section hidden" style="margin-top: 20px; border: 1px solid var(--ow-orange);">
+            <h3 style="color: var(--ow-orange); margin-top: 0;">🗺️ 주요 맵 2층 포지셔닝 팁</h3>
+            <ul style="line-height: 1.8;">
+                <li><strong>도라도 (1거점):</strong> 수비 시 은행 건물 옥상을 점거하고 상대 힐러진 압박.</li>
+                <li><strong>왕의 길 (2거점):</strong> 좁은 길목에서 분열 사격을 활용한 입구 통제.</li>
+                <li><strong>일리오스 (등대):</strong> 외부 옥상과 거점을 슬라이딩으로 자유롭게 넘나들며 포킹.</li>
+            </ul>
+        </div>
+
+    </div>
+
+    <script>
+        // 상성 카드 클릭 시 이유(설명) 토글 애니메이션
+        document.querySelectorAll('.matchup-card').forEach(card => {
+            card.addEventListener('click', () => {
+                // 다른 카드의 열림 상태를 닫고 싶다면 아래 줄 주석 해제
+                // document.querySelectorAll('.matchup-card').forEach(c => { if(c !== card) c.classList.remove('active'); });
+                card.classList.toggle('active');
+            });
+        });
+
+        // 맵 전략 섹션 토글 부드러운 스크롤
+        document.getElementById('mapToggleBtn').addEventListener('click', function() {
+            const section = document.getElementById('mapStrategySection');
+            if (section.classList.contains('hidden')) {
+                section.classList.remove('hidden');
+                section.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else {
+                section.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
