@@ -266,12 +266,14 @@ function initMapGrid() {
                 if (btn.classList.contains('selected')) {
                     btn.classList.remove('selected');
                     currentMapId = null;
+                    sessionStorage.removeItem('owMapMaster_map'); // 선택 취소 시 저장 데이터 삭제
                     resultBox.classList.add('hidden'); // 맵 선택이 취소되었으므로 결과창 숨김
                 } else {
                     // 새로운 맵을 선택한 경우
                     document.querySelectorAll('.map-btn').forEach(b => b.classList.remove('selected'));
                     btn.classList.add('selected');
                     currentMapId = mapId;
+                    sessionStorage.setItem('owMapMaster_map', currentMapId); // 선택한 맵 임시 저장
                     
                     if (currentRole) renderResult();
                 }
@@ -291,6 +293,7 @@ roleButtons.forEach(btn => {
         document.querySelectorAll('.role-item').forEach(b => b.classList.remove('selected'));
         btn.classList.add('selected');
         currentRole = btn.dataset.role;
+        sessionStorage.setItem('owMapMaster_role', currentRole); // 선택한 역할군 임시 저장
         
         // 역할군 선택 시 Step 2(맵 선택) 섹션 활성화
         step2Section.classList.remove('disabled');
@@ -514,16 +517,63 @@ window.goToHeroPage = function(encodedHeroName) {
     // 공백 등 보이지 않는 문자 예외 처리를 위해 includes 사용
     if (heroName.includes('소전')) {
         window.location.href = 'sojourn.html';
+    } else if (heroName.includes('트레이서')) {
+        window.location.href = 'tracer.html';
+    } else if (heroName.includes('에코')) {
+        window.location.href = 'echo.html';
     } else {
         alert(`[${heroName}] 영웅의 상세 분석 페이지는 준비 중입니다!`);
     }
 };
 
-// 브라우저 새로고침 시 스크롤 위치 강제 초기화 (맨 위로)
+// 현재 페이지 로드 방식 확인 (새로고침인지, 뒤로 가기인지)
+const navEntries = performance.getEntriesByType("navigation");
+const isReload = navEntries.length > 0 && navEntries[0].type === "reload";
+
+// 새로고침 시에는 임시 저장된 선택 상태를 모두 지워서 초기화
+if (isReload) {
+    sessionStorage.removeItem('owMapMaster_role');
+    sessionStorage.removeItem('owMapMaster_map');
+}
+
+// 브라우저 기본 스크롤 복구 방지
 if (history.scrollRestoration) {
     history.scrollRestoration = 'manual';
 }
-window.scrollTo(0, 0);
 
 // 초기화 실행
 initMapGrid();
+
+// 페이지 이동 후 '뒤로 가기'로 돌아왔을 때 이전 선택 상태 완벽 복원 (sessionStorage 활용)
+const savedRole = sessionStorage.getItem('owMapMaster_role');
+const savedMap = sessionStorage.getItem('owMapMaster_map');
+
+if (savedRole) {
+    const roleBtn = document.querySelector(`.role-item[data-role="${savedRole}"]`);
+    if (roleBtn) {
+        document.querySelectorAll('.role-item').forEach(b => b.classList.remove('selected'));
+        roleBtn.classList.add('selected');
+        currentRole = savedRole;
+        step2Section.classList.remove('disabled');
+    }
+}
+
+if (savedMap) {
+    const mapBtn = document.querySelector(`.map-btn[data-map-id="${savedMap}"]`);
+    if (mapBtn) {
+        document.querySelectorAll('.map-btn').forEach(b => b.classList.remove('selected'));
+        mapBtn.classList.add('selected');
+        currentMapId = savedMap;
+    }
+}
+
+// 상태 복원 후 결과창을 그리고, 사용자가 보던 위치로 즉시 스크롤 이동 (애니메이션 제거)
+if (currentRole && currentMapId) {
+    renderResult();
+    setTimeout(() => resultBox.scrollIntoView({ behavior: 'auto', block: 'start' }), 10);
+} else if (currentRole) {
+    setTimeout(() => step2Section.scrollIntoView({ behavior: 'auto', block: 'start' }), 10);
+} else {
+    // 저장된 상태가 없을 때만 맨 위로 초기화
+    window.scrollTo(0, 0);
+}

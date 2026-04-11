@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>트레이서 (Tracer) - 지능형 전략 백서</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="header">
+        <h1>옵기본</h1>
+        <p><a href="index.html" style="color: var(--ow-orange); text-decoration: none; font-weight: bold;">&larr; 맵 분석 메인으로 돌아가기</a></p>
+    </header>
+
+    <div class="container">
+        <!-- 1. 페이지 헤더 -->
+        <div class="hero-header-banner">
+            <img src="images/트레이서.webp" alt="트레이서" class="hero-detail-img" onerror="this.src='https://placehold.co/100x100/28323f/f99e1a?text=TR'">
+            <div class="hero-detail-info">
+                <h2>트레이서 (Tracer) <span class="badge badge-sub-dps" style="font-size: 0.5em; vertical-align: middle;">🗡️ 공격 (Damage)</span></h2>
+                <div class="hero-stats">
+                    <span>💥 순간 화력: ★★★★☆</span>
+                    <span>🛡️ 생존력: ★★★★★</span>
+                    <span>🎮 난이도: ★★★★★</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. 추천 특전 -->
+        <div class="detail-section">
+            <div class="section-title">⭐ 추천 특전 (Recommended Talents)</div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;">
+                <div style="background: rgba(52, 152, 219, 0.1); padding: 20px; border-radius: 8px; border-left: 4px solid #3498db;">
+                    <strong style="color: #3498db; font-size: 1.1em;">보조: 키네틱 재장전</strong>
+                    <p style="font-size: 0.9em; color: #cbd5e1; margin-top: 10px; line-height: 1.6;">적에게 피해를 주면 탄환이 재장전되어 교전 지속력이 극대화됩니다. 1:1 교전에서 우위를 점하게 해주는 훌륭한 보조 특전입니다.</p>
+                </div>
+                <div style="background: rgba(231, 76, 60, 0.1); padding: 20px; border-radius: 8px; border-left: 4px solid #e74c3c;">
+                    <strong style="color: #e74c3c; font-size: 1.1em;">주요: 점멸 팩</strong>
+                    <p style="font-size: 0.9em; color: #cbd5e1; margin-top: 10px; line-height: 1.6;">점멸을 사용할 때마다 생명력을 소량 회복하여 생존력을 크게 높여줍니다. 치고 빠지는 트레이서의 핑퐁 및 유지력을 책임지는 핵심 특전입니다.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. 조합별 운영 로직 (탭 시스템) -->
+        <div class="detail-section">
+            <div class="section-title">🧠 아군/적군 조합별 운영 로직 (Synergy & Flow) <span style="font-size: 0.6em; color: #cbd5e1;">(상황에 따라 역할을 유동적으로 변경하세요)</span></div>
+            
+            <div class="tab-container">
+                <button class="tab-btn active" onclick="openTab('tab-rush')">🛡️ 아군 러쉬/포킹 시</button>
+                <button class="tab-btn" onclick="openTab('tab-dive')">☄️ 아군 다이브 시</button>
+                <button class="tab-btn" onclick="openTab('tab-enemy-dive')">🚨 적군 강다이브 시</button>
+                <button class="tab-btn" onclick="openTab('tab-enemy-poke')">🏹 적군 포킹 메타 시</button>
+            </div>
+
+            <div id="tab-rush" class="tab-content active">
+                <strong style="color: #00a8ff; font-size: 1.1em;">"킬 욕심보다는 공간 창출에 집중하라"</strong>
+                <p>아군이 자리야(Zarya) 기반 러시나 포킹 조합일 경우, 본대 싸움 템포가 느립니다. 무리해서 킬을 내기보단 사이드에서 적의 시선을 끌고 주요 스킬(역행, 수면총 등)을 빼는 <strong>보조적 핑퐁 역할</strong>을 수행하세요.</p>
+            </div>
+            <div id="tab-dive" class="tab-content">
+                <strong style="color: #e74c3c; font-size: 1.1em;">"탱커 진입 타이밍에 맞춘 완벽한 동시 타격"</strong>
+                <p>아군이 윈스턴/레킹볼 기반 다이브 조합일 때는 암살자로 돌변해야 합니다. 본대와 양각(Crossfire)을 형성하여 적을 가두고, 탱커가 뛰는 순간 확실한 킬 로그를 생성하세요.</p>
+            </div>
+            <div id="tab-enemy-dive" class="tab-content">
+                <strong style="color: #f1c40f; font-size: 1.1em;">"사이드 수비 모드로 아군 뒷라인 보호"</strong>
+                <p>상대가 강하게 뛰어들어올 때는 힐팩 근처를 점유하고 길목을 틀어막으세요. 상대 트레이서나 키리코의 우회 진입을 몸으로 저지하여 우리 팀 지원가의 생존을 보장해야 합니다.</p>
+            </div>
+            <div id="tab-enemy-poke" class="tab-content">
+                <strong style="color: #9b59b6; font-size: 1.1em;">"무한 양각 형성으로 메인 도로 차단"</strong>
+                <p>상대가 시그마, 위도우 등 정면 포킹을 위주로 한다면 맵을 최대한 넓게 써야 합니다. 좌우 사이드에서 지속적인 압박을 가해 적 본대가 편하게 메인 도로로 진입하지 못하도록 괴롭히세요.</p>
+            </div>
+        </div>
+
+        <!-- 4. 핵심 기술 및 자원 관리 -->
+        <div class="detail-section">
+            <div class="section-title">⚙️ 핵심 기술 및 자원 관리 (Technical Detail)</div>
+            <ul style="line-height: 1.8;">
+                <li><strong style="color: var(--ow-orange);">트풍참 (Combo):</strong> 전멸 거리 숙지 후 <code>평타(근접) + 전멸</code>로 마무리. 전멸 전 화면을 미리 돌려 적을 즉시 에임에 두는 테크닉 필수.</li>
+                <li><strong style="color: var(--ow-orange);">사격 및 무빙:</strong> 중거리는 끊어서 쏘며 머리/목을 조준합니다. 적과 밀착 시에는 점프 무빙을 섞어 상대의 헤드샷을 회피하세요.</li>
+                <li><strong style="color: var(--ow-orange);">펄스 폭탄:</strong> 바티스트의 불사장치, 키리코의 방울 소모를 반드시 확인 후 투척하세요. 무빙이 불규칙한 대상(아나 등)은 발밑 바닥에 던지는 것이 적중률이 높습니다.</li>
+            </ul>
+        </div>
+
+        <!-- 5. 실전 상황별 판단 알고리즘 -->
+        <div class="detail-section">
+            <div class="section-title">⏱️ 실전 상황별 판단 알고리즘 (Decision Making)</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; border-left: 3px solid #3498db;">
+                    <strong style="color: #3498db;">교전 시작 전</strong>
+                    <p style="font-size: 0.9em; color: #cbd5e1; margin-top: 8px;">지형지물을 엄폐 삼아 1:1 구도를 강제합니다. 생존을 최우선으로 어그로 핑퐁을 시작하세요.</p>
+                </div>
+                <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; border-left: 3px solid #e74c3c;">
+                    <strong style="color: #e74c3c;">수적 열세 (지원가 사망 시)</strong>
+                    <p style="font-size: 0.9em; color: #cbd5e1; margin-top: 8px;">무리한 진입을 절대 금지합니다. 사이드를 막고 힐팩을 순환하며 상대 변수를 차단하세요.</p>
+                </div>
+                <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; border-left: 3px solid #2ecc71;">
+                    <strong style="color: #2ecc71;">한타 승리 후</strong>
+                    <p style="font-size: 0.9em; color: #cbd5e1; margin-top: 8px;">화물이나 거점에 머물지 말고 다음 교전의 유리한 고지를 선점하여 상대 리스폰을 꼬이게 만드세요.</p>
+                </div>
+                <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; border-left: 3px solid #f1c40f;">
+                    <strong style="color: #f1c40f;">게임 마무리 단계</strong>
+                    <p style="font-size: 0.9em; color: #cbd5e1; margin-top: 8px;">극단적인 공격적 포지션으로 상대의 궁극기를 미리 빼고, 거점 터치를 원천 차단하세요.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. 상세 상성 분석 (OP.GG 스타일 카드) -->
+        <div class="detail-section">
+            <div class="section-title">⚔️ 상세 상성 분석 <span style="font-size: 0.6em; color: #cbd5e1;">(카드를 클릭하면 판단 근거가 나타납니다)</span></div>
+            
+            <h4 style="color: #5383e8; margin-bottom: 10px;">🟢 주도권 우위 / 타겟 1순위 (Easy)</h4>
+            <div class="matchup-grid" style="margin-bottom: 25px;">
+                <div class="matchup-card easy">
+                    <div class="matchup-header">👻 리퍼 / ⛏️ 벤처</div>
+                    <div class="matchup-reason"><strong>[판단 근거]</strong><br>근접 영웅이므로 일정 사거리를 유지하며 카이팅하세요. 리퍼의 장전 타이밍이나 벤처의 땅굴 스킬이 빠진 직후가 타격 타이밍입니다.</div>
+                </div>
+                <div class="matchup-card easy">
+                    <div class="matchup-header">🚀 주노 / 🎸 프레야</div>
+                    <div class="matchup-reason"><strong>[판단 근거]</strong><br>생존기가 한정적이고 체력이 낮습니다. 기동성 판정 우위를 활용하여 진입 즉시 확실한 킬캐치를 노리세요.</div>
+                </div>
+            </div>
+
+            <h4 style="color: #e84057; margin-bottom: 10px;">🔴 생존 주의 / 카운터 픽 (Hard)</h4>
+            <div class="matchup-grid">
+                <div class="matchup-card counter">
+                    <div class="matchup-header">🤠 캐서디</div>
+                    <div class="matchup-reason"><strong>[판단 근거]</strong><br>선제 공격으로 어그로를 끈 후, 자력 수류탄(섬광탄) 날아오는 타이밍을 예측해 전멸로 피하는 '턴제 심리전'을 유도하세요.</div>
+                </div>
+                <div class="matchup-card counter">
+                    <div class="matchup-header">🦊 키리코</div>
+                    <div class="matchup-reason"><strong>[판단 근거]</strong><br>헤드 판정이 까다롭습니다. 1:1로 잡으려 하기보다는 순보와 정화의 방울을 빼는 것을 최우선 목표로 삼고 빠지세요.</div>
+                </div>
+                <div class="matchup-card counter">
+                    <div class="matchup-header">🗡️ 겐지</div>
+                    <div class="matchup-reason"><strong>[판단 근거]</strong><br>표창 버스트 대미지를 주의하세요. 겐지의 질풍참이 빠지기 전에는 거리를 두고, 빠진 후 무방비 상태일 때 파고드세요.</div>
+                </div>
+                <div class="matchup-card counter">
+                    <div class="matchup-header">📐 시메트라</div>
+                    <div class="matchup-reason"><strong>[판단 근거]</strong><br>우회로에 깔린 감시 포탑과 빔 예열 대미지는 트레이서의 가장 큰 천적입니다. 포탑 위치 파악 전 섣부른 진입은 절대 금물입니다.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7. 맵 토글 섹션 -->
+        <button id="mapToggleBtn" class="role-btn" style="width: 100%; margin-top: 10px; background: var(--ow-dark); color: #fff; padding: 15px; border-radius: 8px; cursor: pointer; border: none; font-weight: bold;">
+            📍 맵별 트레이서 우회로 전략 보기
+        </button>
+        <div id="mapStrategySection" class="detail-section hidden" style="margin-top: 20px; border: 1px solid var(--ow-orange);">
+            <h3 style="color: var(--ow-orange); margin-top: 0;">🗺️ 주요 전장 우회로 및 타격 포인트</h3>
+            <ul style="line-height: 1.8;">
+                <li><strong>왕의 길 (1거점):</strong> 동상 뒤 호텔이나 오른쪽 골목(미니 힐팩)을 장악하여 수비 측 뒷라인 교란.</li>
+                <li><strong>리장 타워 (관제센터):</strong> 외곽 테라스나 거점 기둥을 중심으로 무한 핑퐁하며 힐러진 압박.</li>
+                <li><strong>콜로세오 (밀기):</strong> 긴 회랑과 꺾이는 골목에 위치한 힐팩을 중심으로 본대와 십자포화(Crossfire) 양각 형성.</li>
+            </ul>
+        </div>
+
+    </div>
+
+    <script>
+        // 상성 카드 클릭 시 이유(설명) 토글 애니메이션
+        document.querySelectorAll('.matchup-card').forEach(card => {
+            card.addEventListener('click', () => {
+                card.classList.toggle('active');
+            });
+        });
+
+        // 탭 토글 로직
+        function openTab(tabId) {
+            // 탭 버튼 상태 초기화
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            // 클릭한 버튼 활성화
+            event.currentTarget.classList.add('active');
+
+            // 탭 내용 초기화
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            // 매칭되는 탭 내용 활성화
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        // 맵 전략 섹션 토글 부드러운 스크롤
+        document.getElementById('mapToggleBtn').addEventListener('click', function() {
+            const section = document.getElementById('mapStrategySection');
+            if (section.classList.contains('hidden')) {
+                section.classList.remove('hidden');
+                section.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else {
+                section.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
