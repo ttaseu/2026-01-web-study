@@ -67,6 +67,13 @@ body {
     color: var(--ow-orange);
 }
 
+#step1 {
+    min-height: 75vh; /* 화면 높이의 75%를 차지하게 하여 맵 선택을 아래로 밀어냄 */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
 .disabled {
     opacity: 0.3;
     pointer-events: none;
@@ -202,8 +209,8 @@ body {
 }
 
 .role-icon {
-    width: 240px;
-    height: 240px;
+    width: 280px; /* 기존 240px에서 확대 */
+    height: 280px;
     object-fit: contain;
     transition: transform 0.2s, filter 0.2s;
     filter: grayscale(100%) opacity(0.6);
