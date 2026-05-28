@@ -310,18 +310,32 @@ function initMapGrid() {
             
             // 만약 해당 이름의 이미지가 없거나 못 불러올 경우 대비 (안전장치)
             img.onerror = () => {
-                img.src = `https://placehold.co/150x100/28323f/f99e1a?text=${encodeURIComponent(mapNameEng)}`;
+                img.src = `https://placehold.co/400x225/1E1E1E/FF5A36?text=${encodeURIComponent(mapNameEng)}`;
             };
             img.alt = mapName;
             img.className = 'map-image';
 
-            // 맵 이름 텍스트 생성
+            // 오버레이 및 텍스트 구조 생성
+            const overlay = document.createElement('div');
+            overlay.className = 'map-overlay';
+
+            const infoDiv = document.createElement('div');
+            infoDiv.className = 'map-info';
+
             const nameSpan = document.createElement('span');
             nameSpan.className = 'map-name';
             nameSpan.textContent = mapName;
 
+            const subInfoSpan = document.createElement('span');
+            subInfoSpan.className = 'map-sub-info';
+            subInfoSpan.textContent = category.name.split(' ')[0]; // 예: "쟁탈"
+
+            infoDiv.appendChild(nameSpan);
+            infoDiv.appendChild(subInfoSpan);
+            overlay.appendChild(infoDiv);
+
             btn.appendChild(img);
-            btn.appendChild(nameSpan);
+            btn.appendChild(overlay);
 
             btn.addEventListener('click', () => {
                 // 이미 선택된 맵을 다시 누른 경우 -> 선택 취소

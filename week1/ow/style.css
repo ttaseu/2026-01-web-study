@@ -1,11 +1,12 @@
 /* 오버워치 스타일 테마 및 초기화 */
 :root {
-    --ow-orange: #f99e1a;
-    --ow-orange-hover: #e08b15;
-    --ow-dark: #28323f;
-    --ow-bg: #1c232c;
-    --ow-text: #f4f6f8;
-    --card-bg: #323e4f;
+    --ow-orange: #FF5A36;
+    --ow-orange-hover: #E0482B;
+    --ow-dark: #0D0D0D;
+    --ow-bg: #121212;
+    --ow-text: #F5F5F5;
+    --card-bg: #1E1E1E;
+    --text-muted: #A0A0A0;
 }
 
 body {
@@ -69,57 +70,104 @@ body {
 }
 
 .map-category-title {
-    color: #e0e6ed;
-    font-size: 1.2em;
-    margin-bottom: 15px;
-    border-left: 4px solid var(--ow-orange);
-    padding-left: 10px;
+    color: var(--ow-text);
+    font-size: 1.3em;
+    font-weight: bold;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.map-category-title::before {
+    content: '';
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    background-color: var(--ow-orange);
+    border-radius: 50%;
 }
 
 /* 맵 타일 그리드 */
 .map-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-    gap: 10px;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
 }
 
 .map-btn {
+    position: relative;
     background-color: var(--card-bg);
-    color: #ffffff; /* 가독성 개선: 흰색 명시 */
     border: 2px solid transparent;
     padding: 0;
-    border-radius: 8px;
+    border-radius: 12px;
     cursor: pointer;
-    font-weight: bold;
-    transition: all 0.2s;
     overflow: hidden;
-    display: flex;
-    flex-direction: column;
+    display: block;
+    aspect-ratio: 16 / 9;
+    transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .map-image {
     width: 100%;
-    height: 80px;
+    height: 100%;
     object-fit: cover;
     background-color: var(--ow-dark);
+    display: block;
 }
 
-.map-name {
-    padding: 12px 5px;
-    text-align: center;
-    font-size: 0.9em;
-    width: 100%;
+.map-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(to bottom, transparent 40%, rgba(0, 0, 0, 0.85) 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 16px;
     box-sizing: border-box;
 }
 
+.map-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    width: 100%;
+}
+
+.map-name {
+    color: #ffffff;
+    font-size: 1.1em;
+    font-weight: bold;
+    margin: 0;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+}
+
+.map-sub-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8em;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.map-sub-info::before {
+    content: '';
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background-color: var(--ow-orange);
+    border-radius: 50%;
+}
+
 .map-btn:hover {
-    background-color: #435368;
+    transform: scale(1.05);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
 }
 
 .map-btn.selected {
     border-color: var(--ow-orange);
-    background-color: var(--ow-orange);
-    color: #fff;
+    box-shadow: 0 0 0 2px var(--ow-orange), 0 8px 24px rgba(0,0,0,0.6);
 }
 
 /* 역할군 버튼 */
