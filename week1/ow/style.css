@@ -34,6 +34,11 @@ body {
     box-sizing: border-box;
 }
 
+.header.main-header {
+    position: static;
+    z-index: auto;
+}
+
 .header h1 {
     color: var(--ow-orange);
     margin: 0 0 10px 0;
