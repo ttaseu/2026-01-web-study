@@ -51,7 +51,7 @@ body {
 }
 
 .container {
-    max-width: 900px;
+    max-width: 1050px; /* 큼직해진 아이콘들이 잘 들어가도록 전체 폭을 넓힘 */
     width: 100%;
     padding: 0 20px 50px 20px;
     box-sizing: border-box;
@@ -68,7 +68,7 @@ body {
 }
 
 #step1 {
-    min-height: 60vh; /* 화면 높이를 살짝 줄임 */
+    min-height: 80vh; /* 빈 공간을 확보해 아래쪽 맵 선택 구역을 화면 밖으로 밀어냄 */
     display: flex;
     flex-direction: column;
     justify-content: flex-start; /* 중앙 정렬을 해제하여 위쪽으로 끌어올림 */
@@ -210,8 +210,8 @@ body {
 }
 
 .role-icon {
-    width: 280px; /* 기존 240px에서 확대 */
-    height: 280px;
+    width: 320px; /* 아이콘을 더 큼직하게 키움 */
+    height: 320px;
     object-fit: contain;
     transition: transform 0.2s, filter 0.2s;
     filter: grayscale(100%) opacity(0.6);
