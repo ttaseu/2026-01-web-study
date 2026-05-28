@@ -10,7 +10,7 @@
     <header class="header">
         <h1>옵기본</h1>
         <p>맵과 역할군을 고르면 승리 전략이 보입니다.</p>
-    </header>
+    </header>ㅇ
 
     <div class="container">
         <!-- Step 1: 역할군 선택 -->
@@ -40,7 +40,12 @@
 
         <!-- 결과창 -->
         <section id="resultBox" class="hidden">
-            <h2 id="resultTitle" class="result-title">맵 이름 - 역할군 전략</h2>
+            <div class="result-header">
+                <h2 id="resultTitle" class="result-title">맵 이름 - 역할군 전략</h2>
+                <div class="like-section">
+                    <button id="likeBtn" class="like-btn">👍 추천해요 <span id="likeCount">0</span></button>
+                </div>
+            </div>
             
             <div class="card strategy-card">
                 <h3>🗺️ 거점별 핵심 전략</h3>
@@ -49,6 +54,21 @@
 
             <div id="roleDataContent" class="role-content-grid">
                 <!-- JS에서 추천 영웅, 시너지, 카운터 내용이 렌더링됩니다 -->
+            </div>
+
+            <!-- 💬 댓글(방명록) 기능 추가 -->
+            <div class="card comment-section">
+                <h3>💬 맵 전술 토론 (방명록)</h3>
+                
+                <form id="commentForm" class="comment-form">
+                    <input type="text" id="commentNickname" placeholder="닉네임 (2~12자)" minlength="2" maxlength="12" required>
+                    <textarea id="commentContent" placeholder="이 맵의 꿀팁이나 궁금한 점을 남겨주세요! (5~300자)" minlength="5" maxlength="300" required></textarea>
+                    <button type="submit" id="commentSubmitBtn">댓글 남기기</button>
+                </form>
+
+                <div id="commentList" class="comment-list">
+                    <p style="text-align: center; color: #a0aec0;">댓글을 불러오는 중...</p>
+                </div>
             </div>
         </section>
     </div>

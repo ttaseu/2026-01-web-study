@@ -172,6 +172,31 @@ body {
     font-weight: bold;
 }
 
+/* 결과창 헤더 및 좋아요 버튼 */
+.result-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.like-btn {
+    background-color: var(--card-bg);
+    color: #fff;
+    border: 1px solid var(--ow-orange);
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.2s;
+}
+
+.like-btn:hover {
+    background-color: var(--ow-orange);
+    color: #fff;
+}
+
 .hidden {
     display: none;
 }
@@ -449,4 +474,71 @@ body {
 @keyframes fadeInDown {
     from { opacity: 0; transform: translateY(-5px); }
     to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- 방명록(댓글) 섹션 스타일 --- */
+.comment-section {
+    grid-column: 1 / -1;
+    margin-top: 20px;
+}
+.comment-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+    background: rgba(0,0,0,0.15);
+    padding: 15px;
+    border-radius: 8px;
+}
+.comment-form input,
+.comment-form textarea {
+    width: 100%;
+    padding: 12px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(0,0,0,0.2);
+    color: #fff;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+.comment-form textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+.comment-form button {
+    background-color: var(--ow-orange);
+    color: #fff;
+    border: none;
+    padding: 12px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.comment-form button:hover {
+    background-color: var(--ow-orange-hover);
+}
+.comment-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.comment-item {
+    background: rgba(0,0,0,0.2);
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 4px solid var(--ow-orange);
+}
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 0.9em;
+}
+.comment-author { font-weight: bold; color: #fff; }
+.comment-date { color: #a0aec0; font-size: 0.9em; }
+.comment-body {
+    color: #e0e6ed;
+    line-height: 1.5;
+    word-break: break-word;
 }
