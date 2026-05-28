@@ -28,6 +28,10 @@ body {
     padding: 30px 20px;
     border-bottom: 4px solid var(--ow-orange);
     margin-bottom: 20px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-sizing: border-box;
 }
 
 .header h1 {
