@@ -227,11 +227,11 @@ let currentRole = null;
 
 // 맵 카테고리 정의
 const mapCategories = [
-    { id: 'control', name: '쟁탈 [ Control ]', maps: ['ilios', 'lijiangTower', 'nepal', 'oasis', 'busan', 'samoa', 'antarcticPeninsula'] },
-    { id: 'escort', name: '호위 [ Escort ]', maps: ['dorado', 'route66', 'gibraltar', 'havana', 'rialto', 'junkertown', 'circuitRoyal', 'shambali'] },
-    { id: 'hybrid', name: '혼합 [ Hybrid ]', maps: ['kingsRow', 'numbani', 'hollywood', 'eichenwalde', 'blizzardWorld', 'midtown', 'paraiso'] },
-    { id: 'push', name: '밀기 [ Push ]', maps: ['colosseo', 'newQueenStreet', 'esperanca', 'runasapi'] },
-    { id: 'flashpoint', name: '플래시포인트 [ Flashpoint ]', maps: ['suravasa', 'newJunkCity', 'atlis'] }
+    { id: 'control', name: '쟁탈', maps: ['ilios', 'lijiangTower', 'nepal', 'oasis', 'busan', 'samoa', 'antarcticPeninsula'] },
+    { id: 'escort', name: '호위', maps: ['dorado', 'route66', 'gibraltar', 'havana', 'rialto', 'junkertown', 'circuitRoyal', 'shambali'] },
+    { id: 'hybrid', name: '혼합', maps: ['kingsRow', 'numbani', 'hollywood', 'eichenwalde', 'blizzardWorld', 'midtown', 'paraiso'] },
+    { id: 'push', name: '밀기', maps: ['colosseo', 'newQueenStreet', 'esperanca', 'runasapi'] },
+    { id: 'flashpoint', name: '플래시포인트', maps: ['suravasa', 'newJunkCity', 'atlis'] }
 ];
 
 // 맵 모드별 공통 전략 팁
