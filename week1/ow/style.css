@@ -68,10 +68,11 @@ body {
 }
 
 #step1 {
-    min-height: 75vh; /* 화면 높이의 75%를 차지하게 하여 맵 선택을 아래로 밀어냄 */
+    min-height: 60vh; /* 화면 높이를 살짝 줄임 */
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start; /* 중앙 정렬을 해제하여 위쪽으로 끌어올림 */
+    padding-top: 20px;
 }
 
 .disabled {
