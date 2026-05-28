@@ -263,6 +263,12 @@ body {
     color: #fff;
 }
 
+.like-btn.liked {
+    background-color: var(--ow-orange);
+    color: #fff;
+    cursor: default;
+}
+
 .hidden {
     display: none;
 }

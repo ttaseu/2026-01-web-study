@@ -585,6 +585,19 @@ function renderResult(options = { scroll: true }) {
     resultBox.classList.remove('hidden');
     loadComments(currentMapId); // 결과창이 열릴 때 해당 맵의 댓글 불러오기
     loadLikes(currentMapId); // 결과창이 열릴 때 해당 맵의 좋아요 불러오기
+    
+    // 좋아요 버튼 중복 클릭 방지 상태 초기화
+    const likedMaps = JSON.parse(localStorage.getItem('owMapMaster_likedMaps') || '[]');
+    if (likedMaps.includes(currentMapId)) {
+        likeBtn.classList.add('liked');
+        likeBtn.firstChild.textContent = '👍 추천 완료 ';
+        likeBtn.disabled = true;
+    } else {
+        likeBtn.classList.remove('liked');
+        likeBtn.firstChild.textContent = '👍 추천해요 ';
+        likeBtn.disabled = false;
+    }
+
     if (options.scroll) {
         resultBox.scrollIntoView({ behavior: 'smooth' });
     }
@@ -685,6 +698,11 @@ async function loadLikes(mapId) {
 // 4. 좋아요 버튼 클릭 이벤트
 likeBtn.addEventListener('click', async () => {
     if (!currentMapId) return;
+    
+    // 클릭 시 로컬 스토리지 한 번 더 확인 (이중 방지)
+    const likedMaps = JSON.parse(localStorage.getItem('owMapMaster_likedMaps') || '[]');
+    if (likedMaps.includes(currentMapId)) return;
+
     likeBtn.disabled = true;
     try {
         const response = await fetch('/api/likeMap', {
@@ -698,9 +716,15 @@ likeBtn.addEventListener('click', async () => {
         }
         const data = await response.json();
         likeCount.textContent = data.likes_count;
+        
+        // 성공 시 로컬 스토리지에 저장하고 버튼 상태 변경
+        likedMaps.push(currentMapId);
+        localStorage.setItem('owMapMaster_likedMaps', JSON.stringify(likedMaps));
+        
+        likeBtn.classList.add('liked');
+        likeBtn.firstChild.textContent = '👍 추천 완료 ';
     } catch (error) {
         alert(error.message);
-    } finally {
         likeBtn.disabled = false;
     }
 });
