@@ -16,12 +16,14 @@ export default async function handler(req, res) {
         const countResponse = await fetch(`${SUPABASE_URL}/rest/v1/map_likes?map_id=eq.${mapId}&select=id&count=exact`, {
             headers: {
                 'apikey': SUPABASE_ANON_KEY,
-                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                'Prefer': 'count=exact'
             }
         });
 
         if (!countResponse.ok) throw new Error('DB 개수 조회 오류');
-        const totalLikes = parseInt(countResponse.headers.get('content-range').split('/')[1], 10) || 0;
+        const contentRange = countResponse.headers.get('content-range');
+        const totalLikes = contentRange ? parseInt(contentRange.split('/')[1], 10) : 0;
 
         // 현재 사용자가 좋아요를 눌렀는지 확인
         const userLikeResponse = await fetch(`${SUPABASE_URL}/rest/v1/map_likes?map_id=eq.${mapId}&user_session_id=eq.${user_session_id}&select=id`, {
