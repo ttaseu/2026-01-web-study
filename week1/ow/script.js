@@ -21,8 +21,8 @@ const mapData = {
     // --- 혼합 (Hybrid) ---
     kingsRow: { 
         name: "왕의 길 (King's Row)", 
-        strategy: ["[경쟁전] 표준 승리 엔진: 아나-트레이서-엠레 체제가 왕의 길 전 구역에서 범용적이고 압도적인 Meta Score 기록", "[경쟁전] 승률의 역전: 한조와 리퍼(WR 63.1%)가 높은 승률 가중치로 실질 승리 기여도가 뛰어남", "[경쟁전] 거점 수비 최적화: 1거점 수비 시 소전보다 실질 승률이 높은 한조나 애쉬(WR 55.1%) 기용 추천", "[공통] 돌격군 밸런스: 시그마의 직선 골목 통제와 자리야의 화물 교전, 윈스턴의 1거점 다이브를 유연하게 활용"], 
-        roles: { tank: { heroes: ["[경쟁전] 시그마", "[경쟁전] 윈스턴", "[경쟁전] 자리야", "[경쟁전] D.Va", "[경쟁전] 둠피스트"], synergy: ["[경쟁전] 시그마 + 아나 (좁은 직선 구간과 골목 완벽 장악)"], counter: "[경쟁전] 라마트라 함정 픽 (대처: 픽률 5% 미만으로 신뢰도 부족, 시그마나 자리야로 대체)" }, damage: { heroes: ["[경쟁전] [서브딜] 트레이서", "[경쟁전] [메인딜] 엠레 (Emre)", "[경쟁전] [메인딜] 캐서디", "[경쟁전] [메인딜] 소전", "[경쟁전] [메인딜] 한조", "[경쟁전] [서브딜] 겐지", "[경쟁전] [서브딜] 에코", "[경쟁전] [메인딜] 리퍼", "[경쟁전] [메인딜] 애쉬"], synergy: ["[경쟁전] 엠레 + 트레이서 (왕의 길 전 구역을 아우르는 범용적 딜러 듀오)"], counter: "[경쟁전] 1거점 수비 (대처: 수비 시 소전보다 승률이 압도적인 한조, 애쉬, 리퍼로 유연하게 스왑)" }, support: { heroes: ["[경쟁전] 아나", "[경쟁전] 키리코", "[경쟁전] 우양 (Wuyang)", "[경쟁전] 일리아리", "[경쟁전] 미즈키 (Mizuki)"], synergy: ["[경쟁전] 아나 (55.09점 압도적 1위) + 키리코 (메타 중심 축)"], counter: "[공통] 골목 난전 (대처: 좁은 골목 힐밴 대박을 노리는 아나를 우양이나 키리코로 철저히 케어)" } } 
+        strategy: ["[경쟁전] 돌격군 메타: 자리야(WR 58.8%)와 윈스턴(WR 55.5%)이 좁은 골목과 고지대 난전을 완벽히 지배", "[경쟁전] 딜러진 핵심: 트레이서와 캐서디를 상수로 두고, 근접 난전 파괴력이 높은 리퍼(WR 52.9%) 적극 기용", "[경쟁전] 지원가 필승 공식: 압도적 1위 아나(스코어 59.56)와 키리코 듀오 체제", "[공통] 돌격군 밸런스: 시그마의 직선 골목 통제와 자리야의 화물 교전, 윈스턴의 1거점 다이브를 유연하게 활용"], 
+        roles: { tank: { heroes: ["[경쟁전] 자리야", "[경쟁전] 윈스턴", "[경쟁전] 시그마", "[경쟁전] 둠피스트", "[경쟁전] 오리사"], synergy: ["[경쟁전] 자리야 + 아나 (좁은 직선 구간과 골목 완벽 장악)"], counter: "[경쟁전] 오리사 함정 픽 주의 (대처: 픽률은 10%이나 승률이 42.8%로 저조하므로 자리야나 윈스턴으로 대체)" }, damage: { heroes: ["[경쟁전] [서브딜] 트레이서", "[경쟁전] [메인딜] 캐서디", "[경쟁전] [메인딜] 리퍼", "[경쟁전] [서브딜] 겐지", "[경쟁전] [메인딜] 소전", "[경쟁전] [서브딜] 에코"], synergy: ["[경쟁전] 트레이서 + 캐서디 (왕의 길 전 구역을 아우르는 범용적 딜러 듀오)"], counter: "[경쟁전] 소전 승률 저조 (대처: 픽률은 15.8%로 높으나 승률이 45.5%로 낮으므로 리퍼나 트레이서로 유연하게 스왑)" }, support: { heroes: ["[경쟁전] 아나", "[경쟁전] 키리코", "[경쟁전] 우양", "[경쟁전] 일리아리", "[경쟁전] 젠야타"], synergy: ["[경쟁전] 아나 (59.56점 압도적 1위) + 키리코 (메타 중심 축)"], counter: "[경쟁전] 젠야타 생존 압박 (대처: 승률이 46.7%로 다이브에 취약하므로 유지력이 좋은 일리아리나 우양으로 케어)" } } 
     },
     numbani: { 
         name: "눔바니 (Numbani)", 
@@ -379,7 +379,7 @@ roleButtons.forEach(btn => {
 
         // 맵과 역할이 모두 선택되었다면 결과창 표시
         if (currentMapId && currentRole) {
-            renderResult();
+            renderResult({ scroll: false });
         }
     });
 });
@@ -517,7 +517,7 @@ const getFormattedHeroes = (heroes) => {
 };
 
 // 3. 결과창 렌더링
-function renderResult() {
+function renderResult(options = { scroll: true }) {
     if (!currentMapId || !currentRole) return;
 
     const data = mapData[currentMapId];
@@ -585,7 +585,9 @@ function renderResult() {
     resultBox.classList.remove('hidden');
     loadComments(currentMapId); // 결과창이 열릴 때 해당 맵의 댓글 불러오기
     loadLikes(currentMapId); // 결과창이 열릴 때 해당 맵의 좋아요 불러오기
-    resultBox.scrollIntoView({ behavior: 'smooth' });
+    if (options.scroll) {
+        resultBox.scrollIntoView({ behavior: 'smooth' });
+    }
 }
 
 // --- 💬 댓글 기능 로직 --- //
@@ -762,7 +764,7 @@ if (savedMap) {
 
 // 상태 복원 후 결과창을 그리고, 사용자가 보던 위치로 즉시 스크롤 이동 (애니메이션 제거)
 if (currentRole && currentMapId) {
-    renderResult();
+    renderResult({ scroll: false });
     setTimeout(() => resultBox.scrollIntoView({ behavior: 'auto', block: 'start' }), 10);
 } else if (currentRole) {
     setTimeout(() => step2Section.scrollIntoView({ behavior: 'auto', block: 'start' }), 10);
