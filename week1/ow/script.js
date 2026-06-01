@@ -704,10 +704,9 @@ commentForm.addEventListener('submit', async (e) => {
 
 // 3. 좋아요 수 불러오기
 async function loadLikes(mapId) {
-    // 즉시 이전 맵의 잔재를 지우고 기본값 '0'으로 초기화 (거슬리는 '...' 표시 완전 제거)
-    likeCount.textContent = '0';
-    likeBtn.classList.remove('liked');
-    likeBtn.firstChild.textContent = '👍 추천해요 ';
+    // 이전 맵 잔재와 깜빡임을 숨기기 위해 데이터가 올 때까지 버튼을 투명하게 만듭니다.
+    likeBtn.style.opacity = '0';
+    likeBtn.style.pointerEvents = 'none';
     likeBtn.disabled = true;
 
     try {
@@ -736,14 +735,24 @@ async function loadLikes(mapId) {
                 }
             } else {
                 likeCount.textContent = '0';
+                likeBtn.classList.remove('liked');
+                likeBtn.firstChild.textContent = '👍 추천해요 ';
             }
             likeBtn.disabled = false;
+            
+            // 세팅이 완료되면 버튼을 다시 스르륵 보여줍니다.
+            likeBtn.style.opacity = '1';
+            likeBtn.style.pointerEvents = 'auto';
         }
     } catch (error) {
         console.error(error);
         if (currentMapId === mapId) {
             likeCount.textContent = '0';
+            likeBtn.classList.remove('liked');
+            likeBtn.firstChild.textContent = '👍 추천해요 ';
             likeBtn.disabled = false;
+            likeBtn.style.opacity = '1';
+            likeBtn.style.pointerEvents = 'auto';
         }
     }
 }
