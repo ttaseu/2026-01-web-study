@@ -704,15 +704,11 @@ commentForm.addEventListener('submit', async (e) => {
 
 // 3. 좋아요 수 불러오기
 async function loadLikes(mapId) {
-    let showLoading = true;
-    
-    // [지연 로딩 기법] 0.1초(100ms) 내에 응답이 오면 '...'을 아예 보여주지 않아 깜빡임을 없앱니다.
-    const loadingTimeout = setTimeout(() => {
-        if (showLoading && currentMapId === mapId) {
-            likeBtn.disabled = true;
-            likeCount.textContent = '...';
-        }
-    }, 100);
+    // 즉시 이전 맵의 잔재를 지우고 기본값 '0'으로 초기화 (거슬리는 '...' 표시 완전 제거)
+    likeCount.textContent = '0';
+    likeBtn.classList.remove('liked');
+    likeBtn.firstChild.textContent = '👍 추천해요 ';
+    likeBtn.disabled = true;
 
     try {
         // 마우스를 올리지 않고 키보드 등으로 바로 진입했을 경우를 대비해 여기서도 호출 보장
@@ -724,10 +720,6 @@ async function loadLikes(mapId) {
 
         // 백그라운드에서 진행 중이던 사전 로딩 통신이 끝날 때까지 기다림
         const data = await mapLikesCache[mapId];
-        
-        // 데이터가 도착했으므로 '...' 타이머를 취소함
-        showLoading = false;
-        clearTimeout(loadingTimeout);
 
         // 다른 맵으로 빠르게 넘어가지 않고 현재 맵에 머물러 있을 때만 화면 갱신
         if (currentMapId === mapId) {
@@ -749,8 +741,6 @@ async function loadLikes(mapId) {
         }
     } catch (error) {
         console.error(error);
-        showLoading = false;
-        clearTimeout(loadingTimeout);
         if (currentMapId === mapId) {
             likeCount.textContent = '0';
             likeBtn.disabled = false;
