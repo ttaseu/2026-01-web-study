@@ -25,16 +25,20 @@ export default async function handler(req, res) {
         if (existingLike.length > 0) {
             // 이미 좋아요를 눌렀다면 -> 삭제 (좋아요 취소)
             const likeId = existingLike[0].id;
-            await fetch(`${SUPABASE_URL}/rest/v1/map_likes?id=eq.${likeId}`, {
+            const deleteRes = await fetch(`${SUPABASE_URL}/rest/v1/map_likes?id=eq.${likeId}`, {
                 method: 'DELETE',
                 headers: {
                     'apikey': SUPABASE_ANON_KEY,
                     'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
                 }
             });
+            if (!deleteRes.ok) {
+                const err = await deleteRes.json();
+                throw new Error(`좋아요 취소 실패: ${err.message || err.error}`);
+            }
         } else {
             // 좋아요를 누르지 않았다면 -> 추가
-            await fetch(`${SUPABASE_URL}/rest/v1/map_likes`, {
+            const insertRes = await fetch(`${SUPABASE_URL}/rest/v1/map_likes`, {
                 method: 'POST',
                 headers: {
                     'apikey': SUPABASE_ANON_KEY,
@@ -43,6 +47,10 @@ export default async function handler(req, res) {
                 },
                 body: JSON.stringify({ map_id, user_session_id })
             });
+            if (!insertRes.ok) {
+                const err = await insertRes.json();
+                throw new Error(`좋아요 추가 실패: ${err.message || err.error}`);
+            }
         }
 
         // 3. 최종 좋아요 개수 다시 조회해서 반환
