@@ -54,15 +54,14 @@ export default async function handler(req, res) {
         }
 
         // 3. 최종 좋아요 개수 다시 조회해서 반환
-        const finalCountResponse = await fetch(`${SUPABASE_URL}/rest/v1/map_likes?map_id=eq.${map_id}&select=id&count=exact`, { 
+        const finalCountResponse = await fetch(`${SUPABASE_URL}/rest/v1/map_likes?map_id=eq.${map_id}&select=id`, { 
             headers: { 
                 'apikey': SUPABASE_ANON_KEY, 
-                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                'Prefer': 'count=exact'
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
             } 
         });
-        const contentRange = finalCountResponse.headers.get('content-range');
-        const totalLikes = contentRange ? parseInt(contentRange.split('/')[1], 10) : 0;
+        const finalData = await finalCountResponse.json();
+        const totalLikes = finalData.length;
         
         return res.status(200).json({ success: true, likes_count: totalLikes });
     } catch (error) {
