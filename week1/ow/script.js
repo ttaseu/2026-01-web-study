@@ -353,6 +353,19 @@ function initMapGrid() {
             btn.appendChild(img);
             btn.appendChild(overlay);
 
+            // [마법의 기술: 사전 로딩 (Prefetch)]
+            // 사용자가 맵 버튼에 마우스를 올리거나 터치하는 순간, 클릭하기도 전에 몰래 서버에서 데이터를 가져옵니다.
+            const prefetchLikes = () => {
+                if (!mapLikesCache[mapId]) {
+                    fetch(`/api/getMapLikes?mapId=${mapId}&user_session_id=${userSessionId}`, { cache: 'no-store' })
+                        .then(res => res.ok ? res.json() : null)
+                        .then(data => { if (data) mapLikesCache[mapId] = data; })
+                        .catch(() => {}); // 에러가 나도 조용히 무시 (클릭 시 다시 시도함)
+                }
+            };
+            btn.addEventListener('mouseenter', prefetchLikes);
+            btn.addEventListener('touchstart', prefetchLikes, { passive: true });
+
             btn.addEventListener('click', () => {
                 // 이미 선택된 맵을 다시 누른 경우 -> 선택 취소
                 if (btn.classList.contains('selected')) {
