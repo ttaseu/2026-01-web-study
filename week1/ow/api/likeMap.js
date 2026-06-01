@@ -67,6 +67,7 @@ export default async function handler(req, res) {
         const finalData = await finalCountResponse.json();
         const totalLikes = finalData.length;
         
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
         return res.status(200).json({ success: true, likes_count: totalLikes, is_liked_by_user: isLikedByUser });
     } catch (error) {
         return res.status(500).json({ error: error.message });

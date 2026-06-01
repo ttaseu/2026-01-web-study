@@ -235,6 +235,9 @@ if (!userSessionId) {
 // 현재 사용자가 좋아요를 눌렀는지 상태를 저장하는 변수
 let isLikedByCurrentUser = false;
 
+// 한 번 불러온 맵의 좋아요 데이터를 임시 기억하는 캐시 저장소 (빠른 로딩용)
+const mapLikesCache = {};
+
 // --- 렌더링 및 UI 로직 --- //
 
 
@@ -684,18 +687,13 @@ commentForm.addEventListener('submit', async (e) => {
 
 // 3. 좋아요 수 불러오기
 async function loadLikes(mapId) {
-    likeBtn.disabled = true;
-    likeCount.textContent = '...';
-    try {
-        // API에 user_session_id를 함께 보내서 내가 눌렀는지 여부도 확인
-        const response = await fetch(`/api/getMapLikes?mapId=${mapId}&user_session_id=${userSessionId}`);
-        if (!response.ok) throw new Error('좋아요 로드 실패');
-        const data = await response.json();
-
-        likeCount.textContent = data.likes_count;
-        isLikedByCurrentUser = data.is_liked_by_user;
-
-        // 내가 좋아요를 눌렀는지에 따라 버튼 상태 업데이트
+    // 캐시에 데이터가 있다면 즉시 화면에 반영 (로딩 '...' 없앰)
+    if (mapLikesCache[mapId]) {
+        const cached = mapLikesCache[mapId];
+        likeCount.textContent = cached.likes_count;
+        isLikedByCurrentUser = cached.is_liked_by_user;
+        likeBtn.disabled = false;
+        
         if (isLikedByCurrentUser) {
             likeBtn.classList.add('liked');
             likeBtn.firstChild.textContent = '👍 추천 완료 ';
@@ -703,12 +701,43 @@ async function loadLikes(mapId) {
             likeBtn.classList.remove('liked');
             likeBtn.firstChild.textContent = '👍 추천해요 ';
         }
+    } else {
+        // 처음 방문하는 맵일 때만 로딩 표시
+        likeBtn.disabled = true;
+        likeCount.textContent = '...';
+    }
 
+    try {
+        // 브라우저 캐시를 무시하고 무조건 최신 데이터를 서버에서 가져오기
+        const response = await fetch(`/api/getMapLikes?mapId=${mapId}&user_session_id=${userSessionId}`, { cache: 'no-store' });
+        if (!response.ok) throw new Error('좋아요 로드 실패');
+        const data = await response.json();
+
+        // 가져온 최신 데이터를 캐시에 저장
+        mapLikesCache[mapId] = data;
+
+        // 다른 맵으로 빠르게 넘어가지 않고 현재 맵에 머물러 있을 때만 화면 갱신
+        if (currentMapId === mapId) {
+            likeCount.textContent = data.likes_count;
+            isLikedByCurrentUser = data.is_liked_by_user;
+
+            if (isLikedByCurrentUser) {
+                likeBtn.classList.add('liked');
+                likeBtn.firstChild.textContent = '👍 추천 완료 ';
+            } else {
+                likeBtn.classList.remove('liked');
+                likeBtn.firstChild.textContent = '👍 추천해요 ';
+            }
+        }
     } catch (error) {
         console.error(error);
-        likeCount.textContent = '0';
+        if (currentMapId === mapId && !mapLikesCache[mapId]) {
+            likeCount.textContent = '0';
+        }
     } finally {
-        likeBtn.disabled = false;
+        if (currentMapId === mapId) {
+            likeBtn.disabled = false;
+        }
     }
 }
 
@@ -748,6 +777,9 @@ likeBtn.addEventListener('click', async () => {
         const data = await response.json();
         likeCount.textContent = data.likes_count;
         isLikedByCurrentUser = data.is_liked_by_user;
+        
+        // 변경된 최신 상태를 캐시에도 덮어씌움
+        mapLikesCache[currentMapId] = { likes_count: data.likes_count, is_liked_by_user: data.is_liked_by_user };
         
     } catch (error) {
         alert(error.message);
