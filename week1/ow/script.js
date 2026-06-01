@@ -240,6 +240,21 @@ const mapLikesCache = {};
 
 // --- 렌더링 및 UI 로직 --- //
 
+// 좋아요 UI 상태를 즉시 업데이트해주는 헬퍼 함수 (대형 커뮤니티 표준 방식)
+function updateLikeButtonUI(likesCount, isLiked) {
+    likeCount.textContent = likesCount;
+    isLikedByCurrentUser = isLiked;
+    
+    const textNode = likeBtn.childNodes[0];
+    if (isLiked) {
+        likeBtn.classList.add('liked');
+        textNode.textContent = '👍 추천 완료 ';
+    } else {
+        likeBtn.classList.remove('liked');
+        textNode.textContent = '👍 추천해요 ';
+    }
+    likeBtn.disabled = false;
+}
 
 // 맵 카테고리 정의
 const mapCategories = [
@@ -354,17 +369,24 @@ function initMapGrid() {
             btn.appendChild(overlay);
 
             // [마법의 기술: 사전 로딩 (Prefetch)]
-            // 사용자가 맵 버튼에 마우스를 올리거나 터치하는 순간, 클릭하기도 전에 몰래 서버에서 데이터를 가져옵니다.
+            // 사용자가 맵 버튼에 마우스를 올리는 순간, 서버에서 데이터를 가져와 캐시에 완벽히 저장합니다.
             const prefetchLikes = () => {
                 if (!mapLikesCache[mapId]) {
-                    // 진행 중인 '통신 약속(Promise)' 자체를 캐시에 저장하여 이중 요청을 완벽히 차단합니다.
-                    mapLikesCache[mapId] = fetch(`/api/getMapLikes?mapId=${mapId}&user_session_id=${userSessionId}`, { cache: 'no-store' })
+                    const promise = fetch(`/api/getMapLikes?mapId=${mapId}&user_session_id=${userSessionId}`, { cache: 'no-store' })
                         .then(res => res.ok ? res.json() : Promise.reject('Fetch Fail'))
+                        .then(data => {
+                            mapLikesCache[mapId] = { resolved: true, data };
+                            // 데이터를 가져왔을 때 마침 유저가 이 맵을 보고 있다면 즉시 화면 렌더링
+                            if (currentMapId === mapId) updateLikeButtonUI(data.likes_count, data.is_liked_by_user);
+                            return data;
+                        })
                         .catch(() => {
-                            // 에러 발생 시 캐시를 비워 나중에 다시 시도할 수 있게 함
                             mapLikesCache[mapId] = null; 
+                            if (currentMapId === mapId) updateLikeButtonUI(0, false);
                             return null;
                         });
+                    // 요청 중(pending) 상태를 먼저 저장
+                    mapLikesCache[mapId] = { resolved: false, promise };
                 }
             };
             btn.addEventListener('mouseenter', prefetchLikes);
@@ -703,56 +725,34 @@ commentForm.addEventListener('submit', async (e) => {
 });
 
 // 3. 좋아요 수 불러오기
-async function loadLikes(mapId) {
-    // 투명하게 숨기는 코드를 없애고(깜빡임 방지), 버튼을 그대로 둔 채 숫자만 잠깐 비워둡니다.
-    likeBtn.style.transition = '';
-    likeBtn.style.opacity = '1';
-    likeBtn.style.pointerEvents = 'auto';
-    
-    likeBtn.classList.remove('liked');
-    likeBtn.firstChild.textContent = '👍 추천해요 ';
-    likeCount.textContent = ''; // 0이 스쳐 지나가는 현상 원천 차단
+function loadLikes(mapId) {
+    // 1. 상태 초기화: 데이터를 기다리는 동안 안정적인 로딩 상태 표시 (숫자를 '-' 로 표시해 깜빡임 및 레이아웃 흔들림 원천 차단)
     likeBtn.disabled = true;
+    likeBtn.childNodes[0].textContent = '👍 추천해요 ';
+    likeBtn.classList.remove('liked');
+    likeCount.textContent = '-'; 
 
-    try {
-        // 마우스를 올리지 않고 키보드 등으로 바로 진입했을 경우를 대비해 여기서도 호출 보장
-        if (!mapLikesCache[mapId]) {
-            mapLikesCache[mapId] = fetch(`/api/getMapLikes?mapId=${mapId}&user_session_id=${userSessionId}`, { cache: 'no-store' })
-                .then(res => res.ok ? res.json() : Promise.reject('Fetch Fail'))
-                .catch(() => { mapLikesCache[mapId] = null; return null; });
-        }
+    // 2. 캐시된 데이터가 이미 완료 상태라면 즉시 렌더링
+    if (mapLikesCache[mapId] && mapLikesCache[mapId].resolved) {
+        updateLikeButtonUI(mapLikesCache[mapId].data.likes_count, mapLikesCache[mapId].data.is_liked_by_user);
+        return;
+    }
 
-        // 백그라운드에서 진행 중이던 사전 로딩 통신이 끝날 때까지 기다림
-        const data = await mapLikesCache[mapId];
-
-        // 다른 맵으로 빠르게 넘어가지 않고 현재 맵에 머물러 있을 때만 화면 갱신
-        if (currentMapId === mapId) {
-            if (data) {
-                likeCount.textContent = data.likes_count;
-                isLikedByCurrentUser = data.is_liked_by_user;
-
-                if (isLikedByCurrentUser) {
-                    likeBtn.classList.add('liked');
-                    likeBtn.firstChild.textContent = '👍 추천 완료 ';
-                } else {
-                    likeBtn.classList.remove('liked');
-                    likeBtn.firstChild.textContent = '👍 추천해요 ';
-                }
-            } else {
-                likeCount.textContent = '0';
-                likeBtn.classList.remove('liked');
-                likeBtn.firstChild.textContent = '👍 추천해요 ';
-            }
-            likeBtn.disabled = false;
-        }
-    } catch (error) {
-        console.error(error);
-        if (currentMapId === mapId) {
-            likeCount.textContent = '0';
-            likeBtn.classList.remove('liked');
-            likeBtn.firstChild.textContent = '👍 추천해요 ';
-            likeBtn.disabled = false;
-        }
+    // 3. 캐시가 없거나 아직 요청 중이라면 새로 요청하거나 기다림
+    if (!mapLikesCache[mapId]) {
+        const promise = fetch(`/api/getMapLikes?mapId=${mapId}&user_session_id=${userSessionId}`, { cache: 'no-store' })
+            .then(res => res.ok ? res.json() : Promise.reject('Fetch Fail'))
+            .then(data => {
+                mapLikesCache[mapId] = { resolved: true, data };
+                if (currentMapId === mapId) updateLikeButtonUI(data.likes_count, data.is_liked_by_user);
+                return data;
+            })
+            .catch(() => {
+                mapLikesCache[mapId] = null;
+                if (currentMapId === mapId) updateLikeButtonUI(0, false);
+                return null;
+            });
+        mapLikesCache[mapId] = { resolved: false, promise };
     }
 }
 
@@ -762,20 +762,12 @@ likeBtn.addEventListener('click', async () => {
 
     likeBtn.disabled = true;
 
-    // [낙관적 업데이트 (Optimistic UI)]
-    // 서버 응답을 기다리지 않고 화면의 숫자와 버튼 상태를 즉시 바꿔버립니다. (반응속도 0초)
-    isLikedByCurrentUser = !isLikedByCurrentUser;
-    let currentCount = parseInt(likeCount.textContent) || 0;
+    // [낙관적 업데이트 (Optimistic UI)] 유튜브/인스타그램 방식
+    const newIsLiked = !isLikedByCurrentUser;
+    const currentCount = parseInt(likeCount.textContent) || 0;
+    const newCount = newIsLiked ? currentCount + 1 : Math.max(0, currentCount - 1);
     
-    if (isLikedByCurrentUser) {
-        likeCount.textContent = currentCount + 1;
-        likeBtn.classList.add('liked');
-        likeBtn.firstChild.textContent = '👍 추천 완료 ';
-    } else {
-        likeCount.textContent = Math.max(0, currentCount - 1);
-        likeBtn.classList.remove('liked');
-        likeBtn.firstChild.textContent = '👍 추천해요 ';
-    }
+    updateLikeButtonUI(newCount, newIsLiked);
 
     try {
         const response = await fetch('/api/likeMap', {
@@ -788,27 +780,18 @@ likeBtn.addEventListener('click', async () => {
             throw new Error(`[서버 에러] ${errData.error}`);
         }
         
-        // 서버 통신이 성공적으로 끝나면, 서버가 알려준 진짜 데이터로 다시 덮어씌워 확실히 동기화합니다.
+        // 서버 통신이 성공적으로 끝나면 실제 데이터로 덮어쓰기
         const data = await response.json();
-        likeCount.textContent = data.likes_count;
-        isLikedByCurrentUser = data.is_liked_by_user;
-        
-        // 변경된 최신 상태를 진행 완료된 Promise 형태로 캐시에 덮어씌움
-        mapLikesCache[currentMapId] = Promise.resolve({ likes_count: data.likes_count, is_liked_by_user: data.is_liked_by_user });
+        mapLikesCache[currentMapId] = { resolved: true, data };
+        if (currentMapId === currentMapId) {
+            updateLikeButtonUI(data.likes_count, data.is_liked_by_user);
+        }
         
     } catch (error) {
         alert(error.message);
-        // 에러가 났다면 미리 바꿔둔 화면을 원래대로 되돌립니다 (롤백)
-        isLikedByCurrentUser = !isLikedByCurrentUser;
-        if (isLikedByCurrentUser) {
-            likeBtn.classList.add('liked');
-            likeBtn.firstChild.textContent = '👍 추천 완료 ';
-        } else {
-            likeBtn.classList.remove('liked');
-            likeBtn.firstChild.textContent = '👍 추천해요 ';
-        }
-    } finally {
-        likeBtn.disabled = false;
+        // 롤백 (원래 수치로 원상복구)
+        const rollbackCount = !newIsLiked ? newCount + 1 : Math.max(0, newCount - 1);
+        updateLikeButtonUI(rollbackCount, !newIsLiked);
     }
 });
 
