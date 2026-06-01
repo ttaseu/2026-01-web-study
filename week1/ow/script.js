@@ -704,12 +704,15 @@ commentForm.addEventListener('submit', async (e) => {
 
 // 3. 좋아요 수 불러오기
 async function loadLikes(mapId) {
-    // 이전 맵 잔재와 깜빡임을 숨기기 위해 데이터가 올 때까지 버튼을 투명하게 만듭니다.
-    likeBtn.style.transition = 'none'; // 서서히 투명해지는 애니메이션을 끄고 즉시 숨김
-    likeBtn.style.opacity = '0';
-    likeBtn.style.pointerEvents = 'none';
-    likeBtn.disabled = true;
+    // 투명하게 숨기는 코드를 없애고(깜빡임 방지), 버튼을 그대로 둔 채 숫자만 잠깐 비워둡니다.
+    likeBtn.style.transition = '';
+    likeBtn.style.opacity = '1';
+    likeBtn.style.pointerEvents = 'auto';
+    
+    likeBtn.classList.remove('liked');
+    likeBtn.firstChild.textContent = '👍 추천해요 ';
     likeCount.textContent = ''; // 0이 스쳐 지나가는 현상 원천 차단
+    likeBtn.disabled = true;
 
     try {
         // 마우스를 올리지 않고 키보드 등으로 바로 진입했을 경우를 대비해 여기서도 호출 보장
@@ -741,11 +744,6 @@ async function loadLikes(mapId) {
                 likeBtn.firstChild.textContent = '👍 추천해요 ';
             }
             likeBtn.disabled = false;
-            
-            // 세팅이 완료되면 버튼을 다시 스르륵 보여줍니다.
-            likeBtn.style.transition = ''; // 원래 있던 CSS 애니메이션 복구
-            likeBtn.style.opacity = '1';
-            likeBtn.style.pointerEvents = 'auto';
         }
     } catch (error) {
         console.error(error);
@@ -754,9 +752,6 @@ async function loadLikes(mapId) {
             likeBtn.classList.remove('liked');
             likeBtn.firstChild.textContent = '👍 추천해요 ';
             likeBtn.disabled = false;
-            likeBtn.style.transition = '';
-            likeBtn.style.opacity = '1';
-            likeBtn.style.pointerEvents = 'auto';
         }
     }
 }
