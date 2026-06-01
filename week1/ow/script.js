@@ -717,6 +717,22 @@ likeBtn.addEventListener('click', async () => {
     if (!currentMapId) return;
 
     likeBtn.disabled = true;
+
+    // [낙관적 업데이트 (Optimistic UI)]
+    // 서버 응답을 기다리지 않고 화면의 숫자와 버튼 상태를 즉시 바꿔버립니다. (반응속도 0초)
+    isLikedByCurrentUser = !isLikedByCurrentUser;
+    let currentCount = parseInt(likeCount.textContent) || 0;
+    
+    if (isLikedByCurrentUser) {
+        likeCount.textContent = currentCount + 1;
+        likeBtn.classList.add('liked');
+        likeBtn.firstChild.textContent = '👍 추천 완료 ';
+    } else {
+        likeCount.textContent = Math.max(0, currentCount - 1);
+        likeBtn.classList.remove('liked');
+        likeBtn.firstChild.textContent = '👍 추천해요 ';
+    }
+
     try {
         const response = await fetch('/api/likeMap', {
             method: 'POST',
@@ -727,10 +743,23 @@ likeBtn.addEventListener('click', async () => {
             const errData = await response.json();
             throw new Error(`[서버 에러] ${errData.error}`);
         }
-        // 성공하면 좋아요 상태를 다시 불러와서 화면을 갱신
-        await loadLikes(currentMapId);
+        
+        // 서버 통신이 성공적으로 끝나면, 서버가 알려준 진짜 데이터로 다시 덮어씌워 확실히 동기화합니다.
+        const data = await response.json();
+        likeCount.textContent = data.likes_count;
+        isLikedByCurrentUser = data.is_liked_by_user;
+        
     } catch (error) {
         alert(error.message);
+        // 에러가 났다면 미리 바꿔둔 화면을 원래대로 되돌립니다 (롤백)
+        isLikedByCurrentUser = !isLikedByCurrentUser;
+        if (isLikedByCurrentUser) {
+            likeBtn.classList.add('liked');
+            likeBtn.firstChild.textContent = '👍 추천 완료 ';
+        } else {
+            likeBtn.classList.remove('liked');
+            likeBtn.firstChild.textContent = '👍 추천해요 ';
+        }
     } finally {
         likeBtn.disabled = false;
     }

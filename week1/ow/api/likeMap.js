@@ -21,6 +21,8 @@ export default async function handler(req, res) {
         });
         const existingLike = await checkResponse.json();
 
+        let isLikedByUser = false;
+
         // 2. 좋아요 토글 로직
         if (existingLike.length > 0) {
             // 이미 좋아요를 눌렀다면 -> 삭제 (좋아요 취소)
@@ -36,6 +38,7 @@ export default async function handler(req, res) {
                 const err = await deleteRes.json();
                 throw new Error(`좋아요 취소 실패: ${err.message || err.error}`);
             }
+            isLikedByUser = false;
         } else {
             // 좋아요를 누르지 않았다면 -> 추가
             const insertRes = await fetch(`${SUPABASE_URL}/rest/v1/map_likes`, {
@@ -51,6 +54,7 @@ export default async function handler(req, res) {
                 const err = await insertRes.json();
                 throw new Error(`좋아요 추가 실패: ${err.message || err.error}`);
             }
+            isLikedByUser = true;
         }
 
         // 3. 최종 좋아요 개수 다시 조회해서 반환
@@ -63,7 +67,7 @@ export default async function handler(req, res) {
         const finalData = await finalCountResponse.json();
         const totalLikes = finalData.length;
         
-        return res.status(200).json({ success: true, likes_count: totalLikes });
+        return res.status(200).json({ success: true, likes_count: totalLikes, is_liked_by_user: isLikedByUser });
     } catch (error) {
         return res.status(500).json({ error: error.message });
     }
