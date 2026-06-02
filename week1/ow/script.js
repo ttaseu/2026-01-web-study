@@ -238,13 +238,21 @@ let isLikedByCurrentUser = false;
 // 한 번 불러온 맵의 좋아요 데이터를 임시 기억하는 캐시 저장소 (빠른 로딩용)
 const mapLikesCache = {};
 
+// 유튜브식 좋아요 기능을 위한 상태 변수
+let initialLikeState = false; 
+let currentLikesCount = 0; 
+let likeDebounceTimer = null;
+let userInteractedSinceLoad = false;
+
 // --- 렌더링 및 UI 로직 --- //
 
-// 좋아요 UI 상태를 즉시 업데이트해주는 헬퍼 함수 (대형 커뮤니티 표준 방식)
+// 좋아요 UI 상태를 즉시 업데이트해주는 헬퍼 함수
 function updateLikeButtonUI(likesCount, isLiked) {
-    likeCount.textContent = likesCount;
+    currentLikesCount = likesCount;
     isLikedByCurrentUser = isLiked;
     
+    likeCount.textContent = likesCount > 0 ? likesCount : '0';
+
     const textNode = likeBtn.childNodes[0];
     if (isLiked) {
         likeBtn.classList.add('liked');
@@ -253,7 +261,9 @@ function updateLikeButtonUI(likesCount, isLiked) {
         likeBtn.classList.remove('liked');
         textNode.textContent = '👍 추천해요 ';
     }
-    likeBtn.disabled = false;
+    
+    // 💡 유튜브 방식의 핵심: 그 어떤 순간에도 버튼을 절대 비활성화하지 않습니다.
+    likeBtn.disabled = false; 
 }
 
 // 맵 카테고리 정의
@@ -369,20 +379,23 @@ function initMapGrid() {
             btn.appendChild(overlay);
 
             // [마법의 기술: 사전 로딩 (Prefetch)]
-            // 사용자가 맵 버튼에 마우스를 올리는 순간, 서버에서 데이터를 가져와 캐시에 완벽히 저장합니다.
+            // 사용자가 맵 버튼에 마우스를 올리는 순간, 클릭하기도 전에 서버에서 데이터를 가져옵니다.
             const prefetchLikes = () => {
                 if (!mapLikesCache[mapId]) {
                     const promise = fetch(`/api/getMapLikes?mapId=${mapId}&user_session_id=${userSessionId}`, { cache: 'no-store' })
                         .then(res => res.ok ? res.json() : Promise.reject('Fetch Fail'))
                         .then(data => {
                             mapLikesCache[mapId] = { resolved: true, data };
-                            // 데이터를 가져왔을 때 마침 유저가 이 맵을 보고 있다면 즉시 화면 렌더링
-                            if (currentMapId === mapId) updateLikeButtonUI(data.likes_count, data.is_liked_by_user);
+                            if (currentMapId === mapId) {
+                                initialLikeState = data.is_liked_by_user;
+                                // 유저가 클릭하기 전에 데이터가 도착했다면 화면 갱신
+                                if (!userInteractedSinceLoad) updateLikeButtonUI(data.likes_count, data.is_liked_by_user);
+                            }
                             return data;
                         })
                         .catch(() => {
                             mapLikesCache[mapId] = null; 
-                            if (currentMapId === mapId) updateLikeButtonUI(0, false);
+                            if (currentMapId === mapId && !userInteractedSinceLoad) updateLikeButtonUI(0, false);
                             return null;
                         });
                     // 요청 중(pending) 상태를 먼저 저장
@@ -726,14 +739,15 @@ commentForm.addEventListener('submit', async (e) => {
 
 // 3. 좋아요 수 불러오기
 function loadLikes(mapId) {
-    // 1. 상태 초기화: 데이터를 기다리는 동안 안정적인 로딩 상태 표시 (숫자를 '-' 로 표시해 깜빡임 및 레이아웃 흔들림 원천 차단)
-    likeBtn.disabled = true;
-    likeBtn.childNodes[0].textContent = '👍 추천해요 ';
-    likeBtn.classList.remove('liked');
-    likeCount.textContent = '-'; 
+    userInteractedSinceLoad = false; // 새로운 맵 로드 시 사용자 상호작용 초기화
+
+    // 1. 초기 UI 세팅 (유튜브 방식: 로딩 중에도 절대 버튼을 막지 않습니다)
+    updateLikeButtonUI(0, false);
+    likeCount.textContent = ''; // 0이 스쳐가는 것을 방지하기 위해 빈칸 처리
 
     // 2. 캐시된 데이터가 이미 완료 상태라면 즉시 렌더링
     if (mapLikesCache[mapId] && mapLikesCache[mapId].resolved) {
+        initialLikeState = mapLikesCache[mapId].data.is_liked_by_user;
         updateLikeButtonUI(mapLikesCache[mapId].data.likes_count, mapLikesCache[mapId].data.is_liked_by_user);
         return;
     }
@@ -744,55 +758,85 @@ function loadLikes(mapId) {
             .then(res => res.ok ? res.json() : Promise.reject('Fetch Fail'))
             .then(data => {
                 mapLikesCache[mapId] = { resolved: true, data };
-                if (currentMapId === mapId) updateLikeButtonUI(data.likes_count, data.is_liked_by_user);
+                if (currentMapId === mapId) {
+                    initialLikeState = data.is_liked_by_user;
+                    if (!userInteractedSinceLoad) updateLikeButtonUI(data.likes_count, data.is_liked_by_user);
+                }
                 return data;
             })
             .catch(() => {
                 mapLikesCache[mapId] = null;
-                if (currentMapId === mapId) updateLikeButtonUI(0, false);
+                if (currentMapId === mapId && !userInteractedSinceLoad) updateLikeButtonUI(0, false);
                 return null;
             });
         mapLikesCache[mapId] = { resolved: false, promise };
+    } else if (!mapLikesCache[mapId].resolved) {
+        // 이미 사전 로딩이 진행 중인 경우 완료될 때 화면 반영
+        mapLikesCache[mapId].promise.then(data => {
+            if (data && currentMapId === mapId) {
+                initialLikeState = data.is_liked_by_user;
+                if (!userInteractedSinceLoad) updateLikeButtonUI(data.likes_count, data.is_liked_by_user);
+            }
+        });
     }
 }
 
 // 4. 좋아요 버튼 클릭 이벤트
-likeBtn.addEventListener('click', async () => {
+likeBtn.addEventListener('click', () => {
     if (!currentMapId) return;
 
-    likeBtn.disabled = true;
+    userInteractedSinceLoad = true; // 사용자가 렌더링 전/후로 클릭했음을 기록
 
-    // [낙관적 업데이트 (Optimistic UI)] 유튜브/인스타그램 방식
+    // 💡 [유튜브 방식 핵심: 절대 버튼을 비활성화하지 않고 연타(Spam)를 허용하며 즉각 반응]
     const newIsLiked = !isLikedByCurrentUser;
-    const currentCount = parseInt(likeCount.textContent) || 0;
-    const newCount = newIsLiked ? currentCount + 1 : Math.max(0, currentCount - 1);
+    const newCount = newIsLiked ? currentLikesCount + 1 : Math.max(0, currentLikesCount - 1);
     
     updateLikeButtonUI(newCount, newIsLiked);
 
-    try {
-        const response = await fetch('/api/likeMap', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ map_id: currentMapId, user_session_id: userSessionId })
-        });
-        if (!response.ok) {
-            const errData = await response.json();
-            throw new Error(`[서버 에러] ${errData.error}`);
-        }
-        
-        // 서버 통신이 성공적으로 끝나면 실제 데이터로 덮어쓰기
-        const data = await response.json();
-        mapLikesCache[currentMapId] = { resolved: true, data };
-        if (currentMapId === currentMapId) {
-            updateLikeButtonUI(data.likes_count, data.is_liked_by_user);
-        }
-        
-    } catch (error) {
-        alert(error.message);
-        // 롤백 (원래 수치로 원상복구)
-        const rollbackCount = !newIsLiked ? newCount + 1 : Math.max(0, newCount - 1);
-        updateLikeButtonUI(rollbackCount, !newIsLiked);
+    // 캐시도 즉각 동기화 (연타 중 맵을 닫았다 다시 열어도 상태 유지)
+    if (mapLikesCache[currentMapId]) {
+        mapLikesCache[currentMapId] = { resolved: true, data: { likes_count: newCount, is_liked_by_user: newIsLiked } };
     }
+
+    // 💡 [디바운스 (Debounce) 기법]
+    // 미친듯이 연타해도 서버 부하가 없도록, 클릭을 멈추고 0.6초 뒤에 단 한 번만 통신합니다.
+    clearTimeout(likeDebounceTimer);
+    const targetMapId = currentMapId;
+
+    likeDebounceTimer = setTimeout(async () => {
+        // 짝수 번 클릭해서 처음 상태로 돌아왔다면 API 호출 자체를 안 함 (서버 통신 0회!)
+        if (newIsLiked !== initialLikeState) {
+            try {
+                const response = await fetch('/api/likeMap', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ map_id: targetMapId, user_session_id: userSessionId })
+                });
+                
+                if (!response.ok) throw new Error('서버 통신 에러');
+                
+                const data = await response.json();
+                
+                // 통신 성공 시 새로운 상태를 캐시와 기준점으로 확정
+                mapLikesCache[targetMapId] = { resolved: true, data };
+                if (currentMapId === targetMapId) {
+                    initialLikeState = data.is_liked_by_user;
+                    updateLikeButtonUI(data.likes_count, data.is_liked_by_user);
+                }
+            } catch (error) {
+                console.error('좋아요 동기화 실패:', error);
+                // 실패 시 유튜브처럼 알림 없이 조용히 원래 상태로 롤백
+                const rollbackLiked = !newIsLiked;
+                const rollbackCount = rollbackLiked ? newCount + 1 : Math.max(0, newCount - 1);
+                
+                mapLikesCache[targetMapId] = { resolved: true, data: { likes_count: rollbackCount, is_liked_by_user: rollbackLiked } };
+                if (currentMapId === targetMapId) {
+                    initialLikeState = rollbackLiked;
+                    updateLikeButtonUI(rollbackCount, rollbackLiked);
+                }
+            }
+        }
+    }, 600);
 });
 
 // 영웅 상세 페이지 이동 기능
