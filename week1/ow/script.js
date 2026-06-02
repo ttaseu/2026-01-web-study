@@ -477,7 +477,7 @@ function renderResult(options = { scroll: true }) {
                     <p style="font-size: 0.9em; margin: 8px 0 0; color: #e0e6ed; line-height: 1.5;">루시우의 속도 버프 등을 받아 다 같이 뭉쳐서 진입한 뒤, 근접 난전을 펼치는 공격적 조합입니다.</p>
                 </div>
                 <div style="flex: 1 1 45%; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px;">
-                    <strong style="color: #9b59b6; font-size: 1.1em;">🏹 포킹 (Poke)</strong>
+                    <strong style="color: #9b59cb6; font-size: 1.1em;">🏹 포킹 (Poke)</strong>
                     <p style="font-size: 0.9em; margin: 8px 0 0; color: #e0e6ed; line-height: 1.5;">긴 사거리의 영웅(시그마, 위도우메이커 등)을 배치해 원거리에서 대미지를 누적시키고 접근을 차단합니다.</p>
                 </div>
                 <div style="flex: 1 1 45%; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px;">
@@ -658,6 +658,8 @@ likeBtn.addEventListener('click', () => {
 
 window.goToHeroPage = function(encodedHeroName) {
     const heroName = decodeURIComponent(encodedHeroName);
+    const koreanName = heroNameEnKrMap[heroName] || heroName;
+    
     const koreanName = heroNameEnKrMap[heroName] || heroName;
     
     if (heroName.includes('Sojourn')) {
