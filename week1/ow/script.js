@@ -130,7 +130,7 @@ const heroDetailData = {
     "자리야": { strategy: "아군 진입 타이밍에 맞춰 방벽을 주어 핑퐁을 유도하고 고에너지를 유지하며 전선을 압살하세요.", counter: "파라, 에코, 위도우메이커 (대처: 고지대와 공중 장악력이 부족하므로 기동성 탱커로 스왑하거나 맵 내부로 끌어들이세요.)" }
 };
 
-// 1. 맵 타일 렌더링
+// 1. 맵 타일 렌더링 (모든 맵 로드 및 간판 이미지 매칭 보정 버전)
 function initMapGrid() {
     mapGrid.innerHTML = '';
 
@@ -154,15 +154,48 @@ function initMapGrid() {
             btn.className = 'map-btn';
             btn.dataset.mapId = mapId;
             
+            // 괄호 및 영문 슬러그 파싱 안전 패치
             const mapName = data.name.includes(' (') ? data.name.split(' (')[0] : data.name; 
             const mapNameEng = data.name.includes('(') ? data.name.split('(')[1].replace(')', '') : data.name; 
-            const mapImageName = data.imageName || mapName; 
             
+            // ⭐️ 은호님의 images/ 폴더 파일명 양식과 100% 대응하도록 이미지 네임 리다이렉트 보정
+            let mapImageName = mapName;
+            if (mapId === "gibraltar") mapImageName = "감시 기지- 지브롤터";
+            else if (mapId === "kingsRow") mapImageName = "왕의 길";
+            else if (mapId === "numbani") mapImageName = "눔바니";
+            else if (mapId === "hollywood") mapImageName = "할리우드";
+            else if (mapId === "eichenwalde") mapImageName = "아이헨발데";
+            else if (mapId === "blizzardWorld") mapImageName = "블리자드 월드";
+            else if (mapId === "midtown") mapImageName = "미드타운";
+            else if (mapId === "paraiso") mapImageName = "파라이수";
+            else if (mapId === "ilios") mapImageName = "일리오스";
+            else if (mapId === "lijiangTower") mapImageName = "리장 타워";
+            else if (mapId === "nepal") mapImageName = "네팔";
+            else if (mapId === "oasis") mapImageName = "오아시스";
+            else if (mapId === "busan") mapImageName = "부산";
+            else if (mapId === "samoa") mapImageName = "사모아";
+            else if (mapId === "antarcticPeninsula") mapImageName = "남극 반도";
+            else if (mapId === "dorado") mapImageName = "도라도";
+            else if (mapId === "route66") mapImageName = "66번 국도";
+            else if (mapId === "havana") mapImageName = "하바나";
+            else if (mapId === "rialto") mapImageName = "리알토";
+            else if (mapId === "junkertown") mapImageName = "쓰레기촌";
+            else if (mapId === "circuitRoyal") mapImageName = "서킷 로얄";
+            else if (mapId === "shambali") mapImageName = "샴발리 수도원";
+            else if (mapId === "colosseo") mapImageName = "콜로세오";
+            else if (mapId === "newQueenStreet") mapImageName = "뉴 퀸 스트리트";
+            else if (mapId === "esperanca") mapImageName = "이스페란사";
+            else if (mapId === "runasapi") mapImageName = "루나사피";
+            else if (mapId === "suravasa") mapImageName = "수라바사";
+            else if (mapId === "newJunkCity") mapImageName = "뉴 정크 시티";
+            else if (mapId === "atlis") mapImageName = "아틀리스";
+
             const img = document.createElement('img');
             img.src = `images/${mapImageName}.webp`; 
             
             img.onerror = () => {
-                img.src = `https://placehold.co/400x225/1E1E1E/FF5A36?text=${encodeURIComponent(mapNameEng)}`;
+                // 폴더에 아직 없는 맵 이미지일 경우 튕기지 않고 백업 텍스트 타일 처리
+                img.src = `https://placehold.co/400x225/1E1E1E/FF5A36?text=${encodeURIComponent(mapName)}`;
             };
             img.alt = mapName;
             img.className = 'map-image';
@@ -235,23 +268,7 @@ function initMapGrid() {
     });
 }
 
-// 2. 역할군 버튼 이벤트 연결
-roleButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.querySelectorAll('.role-item').forEach(b => b.classList.remove('selected'));
-        btn.classList.add('selected');
-        currentRole = btn.dataset.role;
-        sessionStorage.setItem('owMapMaster_role', currentRole); 
-        
-        step2Section.classList.remove('disabled');
-        step2Section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-        if (currentMapId && currentRole) {
-            renderResult({ scroll: false });
-        }
-    });
-});
-
+// 텍스트 태그 HTML 뱃지 치환 헬퍼
 const formatTextWithBadges = (text) => {
     if (typeof text !== 'string') return text;
     return text
@@ -266,6 +283,7 @@ const formatTextWithBadges = (text) => {
         .replace(/\[서브딜\]\s*/g, '<span class="badge badge-sub-dps">🗡️ 서브딜</span> ');
 };
 
+// 시너지 픽 변환 헬퍼
 const formatSynergyWithIcons = (synergyText) => {
     let tags = '';
     const tagMatch = synergyText.match(/^(\[[^\]]+\]\s*)+/);
@@ -326,39 +344,70 @@ const formatSynergyWithIcons = (synergyText) => {
     return `<div style="margin-bottom: 8px;">${tagsHtml + formatTextWithBadges(synergyText + description)}</div>`;
 };
 
+// 단일 영웅 카드 컴포넌트 생성 (승률/픽률 및 서브역할군 뱃지 연동)
 const createHeroElement = (heroStr, rank = null) => {
-    const pureName = heroStr.replace(/\[.*?\]/g, '').replace(/\(.*?\)/g, '').trim();
-    
+    // 문자열에서 순수 영웅 이름과 괄호 안의 통계 수치 분리 (예: "Winston (승률: 54.2%...)")
+    const pureName = heroStr.split(' (')[0].trim();
+    const statsInfo = heroStr.includes(' (') ? heroStr.split(' (')[1].replace(')', '') : '';
+
+    // 백엔드 영웅 영문 데이터를 기반으로 메인딜/서브딜 아키타입 정의 후 자동화 UI 뱃지 맵핑
+    const mainDpsList = ["Cassidy", "Soldier: 76", "Ashe", "Widowmaker", "Reaper", "Bastion", "Sojourn"];
+    const subDpsList = ["Tracer", "Genji", "Sombra", "Echo", "Pharah", "Mei", "Symmetra", "Venture", "Hanzo"];
+
     let leftBadges = '';
     if (rank !== null) leftBadges += `<span class="badge badge-rank">👑 ${rank}위</span>`;
-    if (heroStr.includes('[메인딜]')) leftBadges += '<span class="badge badge-main-dps">🎯 메인딜</span>';
-    if (heroStr.includes('[서브딜]')) leftBadges += '<span class="badge badge-sub-dps">🗡️ 서브딜</span>';
-
-    let rightBadges = '';
-    if (heroStr.includes('[대회]')) rightBadges += '<span class="badge badge-tournament">🏆 대회</span>';
     
-    let imageName = pureName;
-    if (imageName === '솔저: 76' || imageName === '솔져: 76') {
-        imageName = '솔져';
+    // 공격진인 경우 자동으로 메인딜러/서브딜러 분류 태그 부여
+    if (currentRole === 'damage') {
+        if (mainDpsList.includes(pureName)) leftBadges += '<span class="badge badge-main-dps">🎯 메인딜</span>';
+        if (subDpsList.includes(pureName)) leftBadges += '<span class="badge badge-sub-dps">🗡️ 서브딜</span>';
     }
+
+    let imageName = pureName;
+    if (imageName === 'Soldier: 76') imageName = '솔져';
+    else if (imageName === 'Wrecking Ball') imageName = '레킹볼';
+    else if (pureName === 'Kiriko') imageName = '키리코';
+    else if (pureName === 'Ana') imageName = '아나';
+    else if (pureName === 'Cassidy') imageName = '캐서디';
+    else if (pureName === 'Zarya') imageName = '자리야';
+    else if (pureName === 'Winston') imageName = '윈스턴';
+    else if (pureName === 'D.Va') imageName = '디바';
+    else if (pureName === 'Sigma') imageName = '시그마';
+    else if (pureName === 'Ashe') imageName = '애쉬';
+    else if (pureName === 'Tracer') imageName = '트레이서';
+    else if (pureName === 'Illari') imageName = '일리아리';
+    else if (pureName === 'Genji') imageName = '겐지';
+    else if (pureName === 'Echo') imageName = '에코';
+    else if (pureName === 'Moira') imageName = '모이라';
+    else if (pureName === 'Zenyatta') imageName = '젠야타';
+    else if (pureName === 'Lucio') imageName = '루시우';
+    else if (pureName === 'Baptiste') imageName = '바티스트';
+    else if (pureName === 'Reaper') imageName = '리퍼';
 
     const imgSrc = `images/${imageName}.webp`;
     const fallbackSrc = `https://placehold.co/30x30/28323f/f99e1a?text=${encodeURIComponent(pureName.substring(0, 1))}`;
 
-    return `<div class="hero-item-wrapper">
-                ${leftBadges ? `<div class="hero-badges-left">${leftBadges}</div>` : ''}
-                <div class="hero-item" style="margin: 0; cursor: pointer;" onclick="goToHeroPage('${encodeURIComponent(pureName)}')">
-                    <img src="${imgSrc}" alt="${pureName}" class="hero-icon" onerror="this.src='${fallbackSrc}'">
-                    <span class="hero-name">${pureName}</span>
+    return `<div class="hero-item-wrapper" style="margin-bottom: 12px; background: rgba(255,255,255,0.02); padding: 8px; border-radius: 6px;">
+                <div style="display:flex; justify-content: space-between; align-items: center; width: 100%;">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <div class="hero-item" style="margin: 0; cursor: pointer;" onclick="goToHeroPage('${encodeURIComponent(pureName)}')">
+                            <img src="${imgSrc}" alt="${pureName}" class="hero-icon" onerror="this.src='${fallbackSrc}'">
+                            <span class="hero-name" style="font-weight:bold;">${pureName}</span>
+                        </div>
+                        <div class="hero-badges-left" style="position:static; display:inline-flex; gap:4px;">${leftBadges}</div>
+                    </div>
+                    ${statsInfo ? `<span style="font-size: 0.85em; color: #cbd5e1; background: rgba(0,0,0,0.3); padding: 3px 8px; border-radius: 4px;">${statsInfo}</span>` : ''}
                 </div>
-                ${rightBadges ? `<div class="hero-badges-right">${rightBadges}</div>` : ''}
             </div>`;
-};
+}
 
+// ⭐️ 5명 전체 리스트 루핑 출력 보정 구현 함수
 const getFormattedHeroes = (heroes) => {
     if (!heroes) return '';
     const heroArray = Array.isArray(heroes) ? heroes : [heroes];
     const flatHeroes = [...new Set(heroArray.flat(Infinity))];
+    
+    // 이제 1등만 뚝 자르지 않고 수집된 5명 리스트를 몽땅 순서대로 그립니다!
     return flatHeroes.map((hero, index) => `<div class="hero-group">${createHeroElement(hero, index + 1)}</div>`).join('');
 };
 
@@ -390,14 +439,14 @@ function renderResult(options = { scroll: true }) {
 
     roleDataContent.innerHTML = `
         <div class="card">
-            <h3>⭐ 추천 영웅</h3>
-            <div style="margin-top: 15px; margin-bottom: 10px; font-weight: bold;">${getFormattedHeroes(roleData.heroes)}</div>
-            <p style="font-size:0.9em; color:#e0e6ed;">현재 맵 지형에 가장 유리한 픽입니다.</p>
+            <h3>⭐ 추천 영웅 Top 5</h3>
+            <div style="margin-top: 15px; margin-bottom: 10px; display:flex; flex-direction:column; gap:2px;">${getFormattedHeroes(roleData.heroes)}</div>
+            <p style="font-size:0.9em; color:#e0e6ed; margin-top:8px;">현재 경쟁전 승률 점수(Score) 가중치가 가장 높은 상위 5명 조합입니다.</p>
         </div>
         <div class="card">
             <h3>🤝 시너지 픽</h3>
             <div>${roleData.synergy.map(s => formatSynergyWithIcons(s)).join('')}</div>
-            <p style="font-size:0.9em; color:#e0e6ed; margin-top:10px;">대회 검증 조합(승/패/변경) 및 핵심 시너지 픽입니다.</p>
+            <p style="font-size:0.9em; color:#e0e6ed; margin-top:10px;">대회 검증 조합 및 실시간 API 자동 업데이트 시너지 데이터셋입니다.</p>
         </div>
         <div class="card" style="grid-column: 1 / -1;">
             <h3>📖 조합 아키타입 가이드</h3>
