@@ -658,6 +658,7 @@ likeBtn.addEventListener('click', () => {
 
 window.goToHeroPage = function(encodedHeroName) {
     const heroName = decodeURIComponent(encodedHeroName);
+    const koreanName = heroNameEnKrMap[heroName] || heroName;
     
     if (heroName.includes('Sojourn')) {
         window.location.href = 'sojourn.html';
@@ -666,7 +667,7 @@ window.goToHeroPage = function(encodedHeroName) {
     } else if (heroName.includes('Echo')) {
         window.location.href = 'echo.html';
     } else {
-        alert(`[${heroName}] 영웅의 상세 분석 페이지는 준비 중입니다!`);
+        alert(`[${koreanName}] 영웅의 상세 분석 페이지는 준비 중입니다!`);
     }
 };
 
