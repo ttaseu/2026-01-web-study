@@ -496,7 +496,7 @@ commentForm.addEventListener('submit', async (e) => {
         await loadComments(currentMapId);
     } catch (error) {
         alert(error.message);
-    } file {
+    } finally {
         commentSubmitBtn.disabled = false;
         commentSubmitBtn.textContent = '댓글 남기기';
     }
