@@ -873,6 +873,35 @@ if (history.scrollRestoration) {
 // 초기화 실행
 initMapGrid();
 
+// --- 🌍 전체 데이터 백그라운드 사전 로딩 (Global Prefetch) --- //
+// 수파베이스와의 통신 딜레이(0.1~0.3초)를 물리적으로 완전히 없애기 위해,
+// 사이트에 접속하자마자 모든 맵의 좋아요 데이터를 뒤에서 몰래 전부 다운로드 받습니다.
+function preloadAllMapLikes() {
+    let delay = 0;
+    mapCategories.forEach(category => {
+        category.maps.forEach(mapId => {
+            setTimeout(() => {
+                if (!mapLikesCache[mapId]) {
+                    const promise = fetch(`/api/getMapLikes?mapId=${mapId}&user_session_id=${userSessionId}`, { cache: 'no-store' })
+                        .then(res => res.ok ? res.json() : Promise.reject('Fetch Fail'))
+                        .then(data => {
+                            mapLikesCache[mapId] = { resolved: true, data };
+                            if (currentMapId === mapId) {
+                                initialLikeState = data.is_liked_by_user;
+                                if (!userInteractedSinceLoad) updateLikeButtonUI(data.likes_count, data.is_liked_by_user);
+                            }
+                            return data;
+                        })
+                        .catch(() => { mapLikesCache[mapId] = null; return null; });
+                    mapLikesCache[mapId] = { resolved: false, promise };
+                }
+            }, delay);
+            delay += 50; // 서버 과부하를 막기 위해 0.05초 간격으로 차례대로 조용히 요청
+        });
+    });
+}
+setTimeout(preloadAllMapLikes, 500); // 페이지 로드 0.5초 뒤 백그라운드 다운로드 시작
+
 // 페이지 이동 후 '뒤로 가기'로 돌아왔을 때 이전 선택 상태 완벽 복원 (sessionStorage 활용)
 const savedRole = sessionStorage.getItem('owMapMaster_role');
 const savedMap = sessionStorage.getItem('owMapMaster_map');
