@@ -17,7 +17,7 @@ const defaultRoleData = {
     }
 };
 
-// ⭐️ 완전 자동화의 핵심: 가공된 파이썬 JSON 데이터를 비동기로 받아올 빈 상자 선언
+// 파이썬 데이터가 쏙 들어올 대형 데이터 상자 변수 선언
 let mapData = {}; 
 
 // DOM Elements
@@ -107,7 +107,7 @@ const modeStrategies = {
         "[공통] 맵 이해도: 구간마다 유리한 영웅 조합이 다를 수 있으므로 적절한 영웅 교체가 중요합니다.",
         "[공통] 자리 싸움(고속도로): 거점/화물을 먹은 직후 멍하니 있지 말고, 미리 다음 경유지로 나가 유리한 자리를 선점하세요.",
         "[공통] 궁극기 배분: 불리한 지형을 극복하기 위해 궁극기를 과감히 투자하여 자리를 뺏는 것이 운영의 핵심입니다.",
-        "[공통] 측면 활용: 정면으로만 나가지 말고 이동기가 좋은 영웅으로 사이드를 활용해 사방을 흔드세요."
+        "[공통;] 측면 활용: 정면으로만 나가지 말고 이동기가 좋은 영웅으로 사이드를 활용해 사방을 흔드세요."
     ],
     push: [
         "[공통] 연승의 중요성: 밀기는 연달아 이기는 것이 중요합니다. 리드 시 궁극기를 활용해서라도 최대한 더 밀어두세요.",
@@ -148,13 +148,12 @@ function initMapGrid() {
 
         category.maps.forEach(mapId => {
             const data = mapData[mapId];
-            if (!data) return; // 데이터에 없는 조커 맵들은 안전하게 패스
+            if (!data) return; 
 
             const btn = document.createElement('button');
             btn.className = 'map-btn';
             btn.dataset.mapId = mapId;
             
-            // ⭐️ 괄호 분리 에러 방지용 안전 패치 적용
             const mapName = data.name.includes(' (') ? data.name.split(' (')[0] : data.name; 
             const mapNameEng = data.name.includes('(') ? data.name.split('(')[1].replace(')', '') : data.name; 
             const mapImageName = data.imageName || mapName; 
@@ -613,7 +612,6 @@ if (isReload) {
     sessionStorage.removeItem('owMapMaster_map');
 }
 
-// ⭐️ 브라우저 기본 스크롤 복구 방지 구문 안전하게 배치
 if (history.scrollRestoration) {
     history.scrollRestoration = 'manual';
 }
@@ -621,7 +619,7 @@ if (history.scrollRestoration) {
 // 🌐 3. [완전 자동화 비동기 초기화 전용 함수]
 async function initApp() {
     try {
-        // 1. JSON 파일 비동기로 불러오기
+        // 1. JSON 파일 비동기로 불러오기 (대소문자 무결점 매칭)
         const response = await fetch('processed_mapData.json');
         if (!response.ok) throw new Error('데이터 파일을 불러오는 데 실패했습니다.');
         mapData = await response.json();
@@ -696,5 +694,5 @@ async function initApp() {
     }
 }
 
-// 🚀 최종 애플리케이션 진입점 트리거
+// 🚀 애플리케이션 시작!
 initApp();
