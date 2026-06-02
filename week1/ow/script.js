@@ -61,6 +61,28 @@ let currentLikesCount = 0;
 let likeDebounceTimer = null;
 let userInteractedSinceLoad = false;
 
+// --- 이벤트 리스너 --- //
+
+// 역할군 선택 이벤트
+roleButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+        // 기존 선택 상태 해제 및 클릭된 버튼 시각적 활성화
+        roleButtons.forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+
+        // 상태 변수 업데이트 및 브라우저 세션 스토리지에 저장
+        currentRole = btn.dataset.role;
+        sessionStorage.setItem('owMapMaster_role', currentRole);
+
+        // Step 2 맵 선택 섹션 활성화 및 부드러운 스크롤 이동
+        step2Section.classList.remove('disabled');
+        step2Section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+        // 이미 맵이 선택되어 있다면 결과 즉시 재렌더링
+        if (currentMapId) renderResult();
+    });
+});
+
 // --- 렌더링 및 UI 로직 --- //
 
 // 좋아요 UI 상태를 즉시 업데이트해주는 헬퍼 함수
