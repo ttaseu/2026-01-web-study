@@ -741,16 +741,16 @@ commentForm.addEventListener('submit', async (e) => {
 function loadLikes(mapId) {
     userInteractedSinceLoad = false; // 새로운 맵 로드 시 사용자 상호작용 초기화
 
-    // 1. 초기 UI 세팅 (유튜브 방식: 로딩 중에도 절대 버튼을 막지 않습니다)
-    updateLikeButtonUI(0, false);
-    likeCount.textContent = ''; // 0이 스쳐가는 것을 방지하기 위해 빈칸 처리
-
-    // 2. 캐시된 데이터가 이미 완료 상태라면 즉시 렌더링
+    // 1. 캐시된 데이터가 이미 완료 상태라면 '초기화 깜빡임' 없이 즉시 렌더링 후 종료
     if (mapLikesCache[mapId] && mapLikesCache[mapId].resolved) {
         initialLikeState = mapLikesCache[mapId].data.is_liked_by_user;
         updateLikeButtonUI(mapLikesCache[mapId].data.likes_count, mapLikesCache[mapId].data.is_liked_by_user);
         return;
     }
+
+    // 2. 캐시가 없거나 아직 로딩 중일 때만 초기 UI 세팅 (빈칸 유지)
+    updateLikeButtonUI(0, false);
+    likeCount.textContent = ''; 
 
     // 3. 캐시가 없거나 아직 요청 중이라면 새로 요청하거나 기다림
     if (!mapLikesCache[mapId]) {
