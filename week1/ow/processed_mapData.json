@@ -1,0 +1,247 @@
+{
+    "gibraltar": {
+        "name": "Watchpoint: Gibraltar",
+        "strategy": [
+            "[자동화 데이터] 현재 맵 기준 역할별 가장 효율이 높은 영웅입니다."
+        ],
+        "roles": {
+            "tank": {
+                "heroes": [
+                    "Winston (승률: 54.2%, 픽률: 32.5%)"
+                ],
+                "synergy": [
+                    "API 자동 업데이트 데이터"
+                ],
+                "counter": "데이터 분석 중..."
+            },
+            "damage": {
+                "heroes": [
+                    "Cassidy (승률: 44.5%, 픽률: 27%)"
+                ],
+                "synergy": [
+                    "API 자동 업데이트 데이터"
+                ],
+                "counter": "데이터 분석 중..."
+            },
+            "support": {
+                "heroes": [
+                    "Ana (승률: 55.4%, 픽률: 68.3%)"
+                ],
+                "synergy": [
+                    "API 자동 업데이트 데이터"
+                ],
+                "counter": "데이터 분석 중..."
+            }
+        }
+    },
+    "oasis": {
+        "name": "Oasis",
+        "strategy": [
+            "[자동화 데이터] 현재 맵 기준 역할별 가장 효율이 높은 영웅입니다."
+        ],
+        "roles": {
+            "tank": {
+                "heroes": [
+                    "Doomfist (승률: 50.9%, 픽률: 13.6%)"
+                ],
+                "synergy": [
+                    "API 자동 업데이트 데이터"
+                ],
+                "counter": "데이터 분석 중..."
+            },
+            "damage": {
+                "heroes": [
+                    "Cassidy (승률: 51.5%, 픽률: 46.2%)"
+                ],
+                "synergy": [
+                    "API 자동 업데이트 데이터"
+                ],
+                "counter": "데이터 분석 중..."
+            },
+            "support": {
+                "heroes": [
+                    "Kiriko (승률: 51%, 픽률: 62.3%)"
+                ],
+                "synergy": [
+                    "API 자동 업데이트 데이터"
+                ],
+                "counter": "데이터 분석 중..."
+            }
+        }
+    },
+    "newQueenStreet": {
+        "name": "New Queen Street",
+        "strategy": [
+            "[자동화 데이터] 현재 맵 기준 역할별 가장 효율이 높은 영웅입니다."
+        ],
+        "roles": {
+            "tank": {
+                "heroes": [
+                    "Winston (승률: 51.8%, 픽률: 15.3%)"
+                ],
+                "synergy": [
+                    "API 자동 업데이트 데이터"
+                ],
+                "counter": "데이터 분석 중..."
+            },
+            "damage": {
+                "heroes": [
+                    "Tracer (승률: 53.5%, 픽률: 38.7%)"
+                ],
+                "synergy": [
+                    "API 자동 업데이트 데이터"
+                ],
+                "counter": "데이터 분석 중..."
+            },
+            "support": {
+                "heroes": [
+                    "Kiriko (승률: 50.9%, 픽률: 62.9%)"
+                ],
+                "synergy": [
+                    "API 자동 업데이트 데이터"
+                ],
+                "counter": "데이터 분석 중..."
+            }
+        }
+    },
+    "esperanca": {
+        "name": "Esperança",
+        "strategy": [
+            "[자동화 데이터] 현재 맵 기준 역할별 가장 효율이 높은 영웅입니다."
+        ],
+        "roles": {
+            "tank": {
+                "heroes": [
+                    "Winston (승률: 54.2%, 픽률: 19.1%)"
+                ],
+                "synergy": [
+                    "API 자동 업데이트 데이터"
+                ],
+                "counter": "데이터 분석 중..."
+            },
+            "damage": {
+                "heroes": [
+                    "Tracer (승률: 51.9%, 픽률: 40.7%)"
+                ],
+                "synergy": [
+                    "API 자동 업데이트 데이터"
+                ],
+                "counter": "데이터 분석 중..."
+            },
+            "support": {
+                "heroes": [
+                    "Kiriko (승률: 53%, 픽률: 62.9%)"
+                ],
+                "synergy": [
+                    "API 자동 업데이트 데이터"
+                ],
+                "counter": "데이터 분석 중..."
+            }
+        }
+    },
+    "suravasa": {
+        "name": "Suravasa",
+        "strategy": [
+            "[자동화 데이터] 현재 맵 기준 역할별 가장 효율이 높은 영웅입니다."
+        ],
+        "roles": {
+            "tank": {
+                "heroes": [
+                    "Doomfist (승률: 52.4%, 픽률: 13%)"
+                ],
+                "synergy": [
+                    "API 자동 업데이트 데이터"
+                ],
+                "counter": "데이터 분석 중..."
+            },
+            "damage": {
+                "heroes": [
+                    "Cassidy (승률: 46.8%, 픽률: 40.1%)"
+                ],
+                "synergy": [
+                    "API 자동 업데이트 데이터"
+                ],
+                "counter": "데이터 분석 중..."
+            },
+            "support": {
+                "heroes": [
+                    "Kiriko (승률: 52.1%, 픽률: 63.6%)"
+                ],
+                "synergy": [
+                    "API 자동 업데이트 데이터"
+                ],
+                "counter": "데이터 분석 중..."
+            }
+        }
+    },
+    "newJunkCity": {
+        "name": "New Junk City",
+        "strategy": [
+            "[자동화 데이터] 현재 맵 기준 역할별 가장 효율이 높은 영웅입니다."
+        ],
+        "roles": {
+            "tank": {
+                "heroes": [
+                    "Hazard (승률: 54.3%, 픽률: 13.3%)"
+                ],
+                "synergy": [
+                    "API 자동 업데이트 데이터"
+                ],
+                "counter": "데이터 분석 중..."
+            },
+            "damage": {
+                "heroes": [
+                    "Cassidy (승률: 50.1%, 픽률: 40.7%)"
+                ],
+                "synergy": [
+                    "API 자동 업데이트 데이터"
+                ],
+                "counter": "데이터 분석 중..."
+            },
+            "support": {
+                "heroes": [
+                    "Kiriko (승률: 51.9%, 픽률: 65.3%)"
+                ],
+                "synergy": [
+                    "API 자동 업데이트 데이터"
+                ],
+                "counter": "데이터 분석 중..."
+            }
+        }
+    },
+    "atlis": {
+        "name": "Aatlis",
+        "strategy": [
+            "[자동화 데이터] 현재 맵 기준 역할별 가장 효율이 높은 영웅입니다."
+        ],
+        "roles": {
+            "tank": {
+                "heroes": [
+                    "Hazard (승률: 56.1%, 픽률: 14.6%)"
+                ],
+                "synergy": [
+                    "API 자동 업데이트 데이터"
+                ],
+                "counter": "데이터 분석 중..."
+            },
+            "damage": {
+                "heroes": [
+                    "Cassidy (승률: 50.8%, 픽률: 41%)"
+                ],
+                "synergy": [
+                    "API 자동 업데이트 데이터"
+                ],
+                "counter": "데이터 분석 중..."
+            },
+            "support": {
+                "heroes": [
+                    "Kiriko (승률: 51.1%, 픽률: 66.8%)"
+                ],
+                "synergy": [
+                    "API 자동 업데이트 데이터"
+                ],
+                "counter": "데이터 분석 중..."
+            }
+        }
+    }
+}

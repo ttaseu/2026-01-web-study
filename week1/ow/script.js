@@ -876,62 +876,82 @@ initMapGrid();
 // --- 🌍 전체 데이터 백그라운드 사전 로딩 (Global Prefetch) --- //
 // 수파베이스와의 통신 딜레이(0.1~0.3초)를 물리적으로 완전히 없애기 위해,
 // 사이트에 접속하자마자 모든 맵의 좋아요 데이터를 뒤에서 몰래 전부 다운로드 받습니다.
-function preloadAllMapLikes() {
-    let delay = 0;
-    mapCategories.forEach(category => {
-        category.maps.forEach(mapId => {
-            setTimeout(() => {
-                if (!mapLikesCache[mapId]) {
-                    const promise = fetch(`/api/getMapLikes?mapId=${mapId}&user_session_id=${userSessionId}`, { cache: 'no-store' })
-                        .then(res => res.ok ? res.json() : Promise.reject('Fetch Fail'))
-                        .then(data => {
-                            mapLikesCache[mapId] = { resolved: true, data };
-                            if (currentMapId === mapId) {
-                                initialLikeState = data.is_liked_by_user;
-                                if (!userInteractedSinceLoad) updateLikeButtonUI(data.likes_count, data.is_liked_by_user);
-                            }
-                            return data;
-                        })
-                        .catch(() => { mapLikesCache[mapId] = null; return null; });
-                    mapLikesCache[mapId] = { resolved: false, promise };
-                }
-            }, delay);
-            delay += 50; // 서버 과부하를 막기 위해 0.05초 간격으로 차례대로 조용히 요청
-        });
-    });
-}
-setTimeout(preloadAllMapLikes, 500); // 페이지 로드 0.5초 뒤 백그라운드 다운로드 시작
+async function initApp() {
+    try {
+        // 1. JSON 파일 비동기로 불러오기
+        const response = await fetch('processed_mapData.json');
+        if (!response.ok) throw new Error('데이터 파일을 불러오는 데 실패했습니다.');
+        mapData = await response.json();
 
-// 페이지 이동 후 '뒤로 가기'로 돌아왔을 때 이전 선택 상태 완벽 복원 (sessionStorage 활용)
-const savedRole = sessionStorage.getItem('owMapMaster_role');
-const savedMap = sessionStorage.getItem('owMapMaster_map');
+        // 2. 데이터가 완벽히 할당된 후 맵 그리드 등 UI 렌더링 시작
+        initMapGrid();
 
-if (savedRole) {
-    const roleBtn = document.querySelector(`.role-item[data-role="${savedRole}"]`);
-    if (roleBtn) {
-        document.querySelectorAll('.role-item').forEach(b => b.classList.remove('selected'));
-        roleBtn.classList.add('selected');
-        currentRole = savedRole;
-        step2Section.classList.remove('disabled');
+        // --- 🌍 전체 데이터 백그라운드 사전 로딩 (Global Prefetch) --- //
+        function preloadAllMapLikes() {
+            let delay = 0;
+            mapCategories.forEach(category => {
+                category.maps.forEach(mapId => {
+                    if (!mapData[mapId]) return; // 데이터에 없는 맵은 안전하게 건너뜀
+                    setTimeout(() => {
+                        if (!mapLikesCache[mapId]) {
+                            const promise = fetch(`/api/getMapLikes?mapId=${mapId}&user_session_id=${userSessionId}`, { cache: 'no-store' })
+                                .then(res => res.ok ? res.json() : Promise.reject('Fetch Fail'))
+                                .then(data => {
+                                    mapLikesCache[mapId] = { resolved: true, data };
+                                    if (currentMapId === mapId) {
+                                        initialLikeState = data.is_liked_by_user;
+                                        if (!userInteractedSinceLoad) updateLikeButtonUI(data.likes_count, data.is_liked_by_user);
+                                    }
+                                    return data;
+                                })
+                                .catch(() => { mapLikesCache[mapId] = null; return null; });
+                            mapLikesCache[mapId] = { resolved: false, promise };
+                        }
+                    }, delay);
+                    delay += 50; 
+                });
+            });
+        }
+        setTimeout(preloadAllMapLikes, 500); 
+
+        // 3. 페이지 이동 후 '뒤로 가기'로 돌아왔을 때 이전 선택 상태 완벽 복원
+        const savedRole = sessionStorage.getItem('owMapMaster_role');
+        const savedMap = sessionStorage.getItem('owMapMaster_map');
+
+        if (savedRole) {
+            const roleBtn = document.querySelector(`.role-item[data-role="${savedRole}"]`);
+            if (roleBtn) {
+                document.querySelectorAll('.role-item').forEach(b => b.classList.remove('selected'));
+                roleBtn.classList.add('selected');
+                currentRole = savedRole;
+                step2Section.classList.remove('disabled');
+            }
+        }
+
+        if (savedMap) {
+            const mapBtn = document.querySelector(`.map-btn[data-map-id="${savedMap}"]`);
+            if (mapBtn) {
+                document.querySelectorAll('.map-btn').forEach(b => b.classList.remove('selected'));
+                mapBtn.classList.add('selected');
+                currentMapId = savedMap;
+            }
+        }
+
+        // 4. 상태 복원 후 결과창을 그리고, 사용자가 보던 위치로 즉시 스크롤 이동
+        if (currentRole && currentMapId) {
+            renderResult({ scroll: false });
+            setTimeout(() => resultBox.scrollIntoView({ behavior: 'auto', block: 'start' }), 10);
+        } else if (currentRole) {
+            setTimeout(() => step2Section.scrollIntoView({ behavior: 'auto', block: 'start' }), 10);
+        } else {
+            window.scrollTo(0, 0);
+        }
+
+    } catch (error) {
+        console.error('초기화 중 오류 발생:', error);
+        mapGrid.innerHTML = '<p style="text-align:center; color:#e74c3c;">맵 데이터를 불러오지 못했습니다.</p>';
     }
 }
 
-if (savedMap) {
-    const mapBtn = document.querySelector(`.map-btn[data-map-id="${savedMap}"]`);
-    if (mapBtn) {
-        document.querySelectorAll('.map-btn').forEach(b => b.classList.remove('selected'));
-        mapBtn.classList.add('selected');
-        currentMapId = savedMap;
-    }
-}
-
-// 상태 복원 후 결과창을 그리고, 사용자가 보던 위치로 즉시 스크롤 이동 (애니메이션 제거)
-if (currentRole && currentMapId) {
-    renderResult({ scroll: false });
-    setTimeout(() => resultBox.scrollIntoView({ behavior: 'auto', block: 'start' }), 10);
-} else if (currentRole) {
-    setTimeout(() => step2Section.scrollIntoView({ behavior: 'auto', block: 'start' }), 10);
-} else {
-    // 저장된 상태가 없을 때만 맨 위로 초기화
-    window.scrollTo(0, 0);
-}
+// 애플리케이션 시작!
+initApp();
