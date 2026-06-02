@@ -107,7 +107,7 @@ const modeStrategies = {
         "[공통] 맵 이해도: 구간마다 유리한 영웅 조합이 다를 수 있으므로 적절한 영웅 교체가 중요합니다.",
         "[공통] 자리 싸움(고속도로): 거점/화물을 먹은 직후 멍하니 있지 말고, 미리 다음 경유지로 나가 유리한 자리를 선점하세요.",
         "[공통] 궁극기 배분: 불리한 지형을 극복하기 위해 궁극기를 과감히 투자하여 자리를 뺏는 것이 운영의 핵심입니다.",
-        "[공통;] 측면 활용: 정면으로만 나가지 말고 이동기가 좋은 영웅으로 사이드를 활용해 사방을 흔드세요."
+        "[공통] 측면 활용: 정면으로만 나가지 말고 이동기가 좋은 영웅으로 사이드를 활용해 사방을 흔드세요."
     ],
     push: [
         "[공통] 연승의 중요성: 밀기는 연달아 이기는 것이 중요합니다. 리드 시 궁극기를 활용해서라도 최대한 더 밀어두세요.",
@@ -188,13 +188,12 @@ function initMapGrid() {
             else if (mapId === "runasapi") mapImageName = "루나사피";
             else if (mapId === "suravasa") mapImageName = "수라바사";
             else if (mapId === "newJunkCity") mapImageName = "뉴 정크 시티";
-            else if (mapId === "atlis") mapImageName = "아틀리스";
+            else if (mapId === "atlis" || mapId === "aatlis") mapImageName = "아틀리스";
 
             const img = document.createElement('img');
             img.src = `images/${mapImageName}.webp`; 
             
             img.onerror = () => {
-                // 폴더에 아직 없는 맵 이미지일 경우 튕기지 않고 백업 텍스트 타일 처리
                 img.src = `https://placehold.co/400x225/1E1E1E/FF5A36?text=${encodeURIComponent(mapName)}`;
             };
             img.alt = mapName;
@@ -346,18 +345,15 @@ const formatSynergyWithIcons = (synergyText) => {
 
 // 단일 영웅 카드 컴포넌트 생성 (승률/픽률 및 서브역할군 뱃지 연동)
 const createHeroElement = (heroStr, rank = null) => {
-    // 문자열에서 순수 영웅 이름과 괄호 안의 통계 수치 분리 (예: "Winston (승률: 54.2%...)")
     const pureName = heroStr.split(' (')[0].trim();
     const statsInfo = heroStr.includes(' (') ? heroStr.split(' (')[1].replace(')', '') : '';
 
-    // 백엔드 영웅 영문 데이터를 기반으로 메인딜/서브딜 아키타입 정의 후 자동화 UI 뱃지 맵핑
     const mainDpsList = ["Cassidy", "Soldier: 76", "Ashe", "Widowmaker", "Reaper", "Bastion", "Sojourn"];
     const subDpsList = ["Tracer", "Genji", "Sombra", "Echo", "Pharah", "Mei", "Symmetra", "Venture", "Hanzo"];
 
     let leftBadges = '';
     if (rank !== null) leftBadges += `<span class="badge badge-rank">👑 ${rank}위</span>`;
     
-    // 공격진인 경우 자동으로 메인딜러/서브딜러 분류 태그 부여
     if (currentRole === 'damage') {
         if (mainDpsList.includes(pureName)) leftBadges += '<span class="badge badge-main-dps">🎯 메인딜</span>';
         if (subDpsList.includes(pureName)) leftBadges += '<span class="badge badge-sub-dps">🗡️ 서브딜</span>';
@@ -379,6 +375,7 @@ const createHeroElement = (heroStr, rank = null) => {
     else if (pureName === 'Genji') imageName = '겐지';
     else if (pureName === 'Echo') imageName = '에코';
     else if (pureName === 'Moira') imageName = '모이라';
+    // 🎯 1. Zenyatta 오타 완벽 교정
     else if (pureName === 'Zenyatta') imageName = '젠야타';
     else if (pureName === 'Lucio') imageName = '루시우';
     else if (pureName === 'Baptiste') imageName = '바티스트';
@@ -401,13 +398,11 @@ const createHeroElement = (heroStr, rank = null) => {
             </div>`;
 }
 
-// ⭐️ 5명 전체 리스트 루핑 출력 보정 구현 함수
+// 5명 전체 리스트 루핑 출력 보정 구현 함수
 const getFormattedHeroes = (heroes) => {
     if (!heroes) return '';
     const heroArray = Array.isArray(heroes) ? heroes : [heroes];
     const flatHeroes = [...new Set(heroArray.flat(Infinity))];
-    
-    // 이제 1등만 뚝 자르지 않고 수집된 5명 리스트를 몽땅 순서대로 그립니다!
     return flatHeroes.map((hero, index) => `<div class="hero-group">${createHeroElement(hero, index + 1)}</div>`).join('');
 };
 
@@ -642,11 +637,11 @@ likeBtn.addEventListener('click', () => {
 window.goToHeroPage = function(encodedHeroName) {
     const heroName = decodeURIComponent(encodedHeroName);
     
-    if (heroName.includes('소전')) {
+    if (heroName.includes('Sojourn')) {
         window.location.href = 'sojourn.html';
-    } else if (heroName.includes('트레이서')) {
+    } else if (heroName.includes('Tracer')) {
         window.location.href = 'tracer.html';
-    } else if (heroName.includes('에코')) {
+    } else if (heroName.includes('Echo')) {
         window.location.href = 'echo.html';
     } else {
         alert(`[${heroName}] 영웅의 상세 분석 페이지는 준비 중입니다!`);
@@ -668,12 +663,10 @@ if (history.scrollRestoration) {
 // 🌐 3. [완전 자동화 비동기 초기화 전용 함수]
 async function initApp() {
     try {
-        // 1. JSON 파일 비동기로 불러오기 (대소문자 무결점 매칭)
         const response = await fetch('processed_mapData.json');
         if (!response.ok) throw new Error('데이터 파일을 불러오는 데 실패했습니다.');
         mapData = await response.json();
 
-        // 2. 데이터가 완벽히 할당된 후 맵 그리드 등 UI 렌더링 시작
         initMapGrid();
 
         // --- 🌍 전체 데이터 백그라운드 사전 로딩 (Global Prefetch) --- //
@@ -704,7 +697,6 @@ async function initApp() {
         }
         setTimeout(preloadAllMapLikes, 500); 
 
-        // 3. 페이지 이동 후 '뒤로 가기'로 돌아왔을 때 이전 선택 상태 완벽 복원
         const savedRole = sessionStorage.getItem('owMapMaster_role');
         const savedMap = sessionStorage.getItem('owMapMaster_map');
 
@@ -727,7 +719,6 @@ async function initApp() {
             }
         }
 
-        // 4. 상태 복원 후 결과창을 그리고, 사용자가 보던 위치로 즉시 스크롤 이동
         if (currentRole && currentMapId) {
             renderResult({ scroll: false });
             setTimeout(() => resultBox.scrollIntoView({ behavior: 'auto', block: 'start' }), 10);
