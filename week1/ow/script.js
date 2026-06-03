@@ -660,8 +660,6 @@ window.goToHeroPage = function(encodedHeroName) {
     const heroName = decodeURIComponent(encodedHeroName);
     const koreanName = heroNameEnKrMap[heroName] || heroName;
     
-    const koreanName = heroNameEnKrMap[heroName] || heroName;
-    
     if (heroName.includes('Sojourn')) {
         window.location.href = 'sojourn.html';
     } else if (heroName.includes('Tracer')) {
