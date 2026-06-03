@@ -365,10 +365,27 @@ const formatSynergyWithIcons = (synergyText) => {
     return `<div style="margin-bottom: 8px;">${tagsHtml + formatTextWithBadges(synergyText + description)}</div>`;
 };
 
+// 🌐 영어 영웅 이름을 한글로 매핑하는 사전
+const heroNameEnKrMap = {
+    "Ana": "아나", "Anran": "안란", "Ashe": "애쉬", "Baptiste": "바티스트", "Bastion": "바스티온", 
+    "Brigitte": "브리기테", "Cassidy": "캐서디", "D.Va": "디바", "Domina": "도미나", "Doomfist": "둠피스트", 
+    "Echo": "에코", "Emre": "엠레", "Freja": "프레야", "Genji": "겐지", "Hanzo": "한조", "Hazard": "해저드", 
+    "Illari": "일리아리", "Jetpack Cat": "제트팩 캣", "Junker Queen": "정커퀸", "Junkrat": "정크랫", 
+    "Juno": "주노", "Kiriko": "키리코", "Lifeweaver": "라이프위버", "Lucio": "루시우", "Lúcio": "루시우", 
+    "Mauga": "마우가", "Mei": "메이", "Mercy": "메르시", "Mizuki": "미즈키", "Moira": "모이라", 
+    "Orisa": "오리사", "Pharah": "파라", "Ramattra": "라마트라", "Reaper": "리퍼", "Reinhardt": "라인하르트", 
+    "Roadhog": "로드호그", "Sierra": "시에라", "Sigma": "시그마", "Sojourn": "소전", "Soldier: 76": "솔저: 76", 
+    "Sombra": "솜브라", "Symmetra": "시메트라", "Torbjörn": "토르비욘", "Torbjorn": "토르비욘", 
+    "Tracer": "트레이서", "Vendetta": "벤데타", "Venture": "벤처", "Widowmaker": "위도우메이커", 
+    "Winston": "윈스턴", "Wrecking Ball": "레킹볼", "Wuyang": "우양", "Zarya": "자리야", "Zenyatta": "젠야타"
+};
+
 // 단일 영웅 카드 컴포넌트 생성 (승률/픽률 및 서브역할군 뱃지 연동)
 const createHeroElement = (heroStr, rank = null) => {
     const pureName = heroStr.split(' (')[0].trim();
     const statsInfo = heroStr.includes(' (') ? heroStr.split(' (')[1].replace(')', '') : '';
+    
+    const koreanName = heroNameEnKrMap[pureName] || pureName;
 
     const mainDpsList = ["Cassidy", "Soldier: 76", "Ashe", "Widowmaker", "Reaper", "Bastion", "Sojourn"];
     const subDpsList = ["Tracer", "Genji", "Sombra", "Echo", "Pharah", "Mei", "Symmetra", "Venture", "Hanzo"];
@@ -381,37 +398,18 @@ const createHeroElement = (heroStr, rank = null) => {
         if (subDpsList.includes(pureName)) leftBadges += '<span class="badge badge-sub-dps">🗡️ 서브딜</span>';
     }
 
-    let imageName = pureName;
-    if (imageName === 'Soldier: 76') imageName = '솔져';
-    else if (imageName === 'Wrecking Ball') imageName = '레킹볼';
-    else if (pureName === 'Kiriko') imageName = '키리코';
-    else if (pureName === 'Ana') imageName = '아나';
-    else if (pureName === 'Cassidy') imageName = '캐서디';
-    else if (pureName === 'Zarya') imageName = '자리야';
-    else if (pureName === 'Winston') imageName = '윈스턴';
-    else if (pureName === 'D.Va') imageName = '디바';
-    else if (pureName === 'Sigma') imageName = '시그마';
-    else if (pureName === 'Ashe') imageName = '애쉬';
-    else if (pureName === 'Tracer') imageName = '트레이서';
-    else if (pureName === 'Illari') imageName = '일리아리';
-    else if (pureName === 'Genji') imageName = '겐지';
-    else if (pureName === 'Echo') imageName = '에코';
-    else if (pureName === 'Moira') imageName = '모이라';
-    // 🎯 1. Zenyatta 오타 완벽 교정
-    else if (pureName === 'Zenyatta') imageName = '젠야타';
-    else if (pureName === 'Lucio') imageName = '루시우';
-    else if (pureName === 'Baptiste') imageName = '바티스트';
-    else if (pureName === 'Reaper') imageName = '리퍼';
+    let imageName = koreanName;
+    if (pureName === 'Soldier: 76') imageName = '솔져';
 
     const imgSrc = `images/${imageName}.webp`;
-    const fallbackSrc = `https://placehold.co/30x30/28323f/f99e1a?text=${encodeURIComponent(pureName.substring(0, 1))}`;
+    const fallbackSrc = `https://placehold.co/30x30/28323f/f99e1a?text=${encodeURIComponent(koreanName.substring(0, 1))}`;
 
     return `<div class="hero-item-wrapper" style="margin-bottom: 12px; background: rgba(255,255,255,0.02); padding: 8px; border-radius: 6px;">
                 <div style="display:flex; justify-content: space-between; align-items: center; width: 100%;">
                     <div style="display:flex; align-items:center; gap:10px;">
                         <div class="hero-item" style="margin: 0; cursor: pointer;" onclick="goToHeroPage('${encodeURIComponent(pureName)}')">
-                            <img src="${imgSrc}" alt="${pureName}" class="hero-icon" onerror="this.src='${fallbackSrc}'">
-                            <span class="hero-name" style="font-weight:bold;">${pureName}</span>
+                            <img src="${imgSrc}" alt="${koreanName}" class="hero-icon" onerror="this.src='${fallbackSrc}'">
+                            <span class="hero-name" style="font-weight:bold;">${koreanName}</span>
                         </div>
                         <div class="hero-badges-left" style="position:static; display:inline-flex; gap:4px;">${leftBadges}</div>
                     </div>
