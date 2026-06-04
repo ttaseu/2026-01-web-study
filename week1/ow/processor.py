@@ -20,7 +20,7 @@ def process_advanced_data():
         print(f"❌ '{input_filename}' 파일이 없습니다. scraper.py를 먼저 실행해 주세요.")
         return
 
-    # 🔗 은호님이 공유해 준 진짜 JSON 구조 계층 맵핑
+    # 진짜 JSON 구조 계층 맵핑
     stats_section = raw_data.get("GetHeroesStatistics", {}) or {}
     overview_section = stats_section.get("heroesRatesOverview", {}) or {}
     result_box = overview_section.get("result", {}) or {}
@@ -81,7 +81,7 @@ def process_advanced_data():
 
         map_hero_pools = {"tank": [], "damage": [], "support": []}
 
-        # 📊 가져온 진짜 영웅 통계를 기반으로 맵 아키타입 가중치 연산
+        # 가져온 진짜 영웅 통계를 기반으로 맵 아키타입 가중치 연산
         for stat in measurements:
             hero_info = stat.get("hero", {}) or {}
             h_name = hero_info.get("name")
@@ -92,27 +92,25 @@ def process_advanced_data():
             pick_rate = stat.get("pickRate", 0) or 0
             r_key = h_role.lower()
 
-            # 🗺️ 맵 특성과 영웅 성향 아키타입 매칭 연산
+            # 맵 특성과 영웅 성향 아키타입 매칭 연산 (정렬용 점수 보정)
             sub_role = HERO_SUB_ROLES.get(h_name, "generic")
             map_bonus = 0.0
             if sub_role == m_style:
-                map_bonus += 4.0  # 전장 적합성 시너지 가중치
+                map_bonus += 4.0  
             elif (m_style == "poke" and sub_role == "main_dps") or (m_style == "dive" and sub_role == "sub_dps"):
                 map_bonus += 2.0
 
-            # 은호의 가중치 공식 연산
+            # 정렬을 결정하는 메타 스코어링에는 가중치를 반영
             meta_score = (win_rate * 0.6) + (pick_rate * 0.4) + map_bonus
             
-            # 리얼 월드 스탯 기반 맵 시너지 스케일링 수치화
-            final_wr = win_rate + (map_bonus * 0.2)
-            final_pr = pick_rate + (map_bonus * 0.1)
-            formatted_str = f"{h_name} (승률: {final_wr:.1f}%, 픽률: {final_pr:.1f}%)"
+            # ⭐️ 화면에 출력할 텍스트는 보너스 연산 없이 오피셜 사이트 원본 수치 그대로 고정!
+            formatted_str = f"{h_name} (승률: {win_rate:.1f}%, 픽률: {pick_rate:.1f}%)"
 
             map_hero_pools[r_key].append({
                 "name": h_name, "display": formatted_str, "score": meta_score, "sub_role": sub_role
             })
 
-        # 3. 역할군별 정렬 및 은호님의 5명 컷오프(메인2, 서브2 필수 보장) 알고리즘 적용
+        # 3. 역할군별 정렬 및 5명 컷오프(메인2, 서브2 필수 보장) 알고리즘 적용
         sorted_tanks = sorted(map_hero_pools["tank"], key=lambda x: x["score"], reverse=True)
         processed_data[m_key]["roles"]["tank"]["heroes"] = [t["display"] for t in sorted_tanks[:5]]
 
@@ -134,7 +132,6 @@ def process_advanced_data():
 
         processed_data[m_key]["roles"]["damage"]["heroes"] = [d["display"] for d in final_dps[:5]]
 
-    # 🚨 NameError 원인이었던 변수명 매칭 완료
     with open(output_filename, "w", encoding="utf-8") as f:
         json.dump(processed_data, f, ensure_ascii=False, indent=4)
         
