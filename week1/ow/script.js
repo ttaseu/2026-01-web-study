@@ -29,7 +29,8 @@ const resultTitle = document.getElementById('resultTitle');
 const strategyList = document.getElementById('strategyList');
 const roleDataContent = document.getElementById('roleDataContent');
 
-// 👑 추가된 티어 선택 셀렉트 박스 DOM
+// 👑 변경: HTML 디자인과 클래스명을 동일하게 매칭 ('ow-tab-btn' 취득)
+const regionTabButtons = document.querySelectorAll('.ow-tab-btn');
 const tierSelect = document.getElementById('tierSelect');
 
 // 댓글용 DOM Elements
@@ -44,7 +45,8 @@ const likeCount = document.getElementById('likeCount');
 // State Variables
 let currentMapId = null;
 let currentRole = null;
-let currentTier = 'all'; // 👑 티어 상태 변수 기본값 추가
+let currentRegion = 'asia'; // 👑 서버 대륙 상태 변수 추가 (기본값 아시아)
+let currentTier = 'all';    // 티어 상태 변수 기본값
 
 // 사용자 고유 세션 ID 생성 및 관리 (로그인 대용)
 let userSessionId = localStorage.getItem('owMapMaster_sessionId');
@@ -70,34 +72,50 @@ let userInteractedSinceLoad = false;
 // 역할군 선택 이벤트
 roleButtons.forEach(btn => {
     btn.addEventListener('click', () => {
-        // 기존 선택 상태 해제 및 클릭된 버튼 시각적 활성화
         roleButtons.forEach(b => b.classList.remove('selected'));
         btn.classList.add('selected');
 
-        // 상태 변수 업데이트 및 브라우저 세션 스토리지에 저장
         currentRole = btn.dataset.role;
         sessionStorage.setItem('owMapMaster_role', currentRole);
 
-        // Step 2 맵 선택 섹션 활성화 및 부드러운 스크롤 이동
         step2Section.classList.remove('disabled');
         step2Section.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-        // 이미 맵이 선택되어 있다면 결과 즉시 재렌더링
         if (currentMapId) renderResult();
     });
 });
 
-// 👑 티어 선택 드롭다운 체인지 이벤트 리스너 추가
+// 👑 추가 및 보정: 아시아/미국/유럽 탭 클릭 시 이벤트 액션 구현
+if (regionTabButtons.length > 0) {
+    regionTabButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            regionTabButtons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            // HTML의 data-region="usa" 단어를 데이터 구조 규격인 "na"로 안전 치환
+            let selectedRegion = btn.dataset.region;
+            if (selectedRegion === 'usa') selectedRegion = 'na';
+
+            currentRegion = selectedRegion;
+            
+            // 👑 중요: 서버가 바뀌면 맵 타일 목록의 조건도 변경될 수 있으므로 다시 리로드
+            initMapGrid();
+            if (currentMapId) renderResult({ scroll: false });
+        });
+    });
+}
+
+// 티어 선택 드롭다운 체인지 이벤트 리스너
 if (tierSelect) {
     tierSelect.addEventListener('change', (e) => {
         currentTier = e.target.value;
-        renderResult({ scroll: false }); // 티어 전환할 때는 부드러운 스크롤 이동 오프
+        initMapGrid(); // 티어 변경 시에도 맵 그리드 유효성 다시 갱신
+        if (currentMapId) renderResult({ scroll: false }); 
     });
 }
 
 // --- 렌더링 및 UI 로직 --- //
 
-// 좋아요 UI 상태를 즉시 업데이트해주는 헬퍼 함수
 function updateLikeButtonUI(likesCount, isLiked) {
     currentLikesCount = likesCount;
     isLikedByCurrentUser = isLiked;
@@ -154,17 +172,7 @@ const modeStrategies = {
     ]
 };
 
-// 영웅별 상세 전략 및 카운터 데이터 (클릭 시 팝업에 표시됨)
-const heroDetailData = {
-    "윈스턴": { strategy: "고지대를 점령하고 적의 핵심 지원가를 고립시키는 다이브를 시도하세요.", counter: "리퍼, 바스티온, 로드호그 (대처: 상대의 주요 쿨타임이 빠진 후 진입하거나 방어 매트릭스를 가진 D.Va와 교대하세요.)" },
-    "트레이서": { strategy: "상대 측면และ 후방을 교란하여 적 힐러진의 시선을 끌고 본대의 진입 타이밍을 만드세요.", counter: "브리기테, 캐서디, 토르비욘 (대처: 섬광탄/방패 밀쳐내기 사거리를 밖에서 교전하고 포탑 사각지대를 활용하세요.)" },
-    "아나": { strategy: "안전한 원거리에서 힐을 주며, 생체 수류탄으로 적의 회복을 차단하여 킬 각을 만드세요.", counter: "윈스턴, 겐지, 트레이서 (대처: 수면총을 아끼고, 물릴 경우 아군 탱커나 브리기테 쪽으로 빠르게 이동하세요.)" },
-    "엠레": { strategy: "우수한 거점 장악력을 바탕으로 팀의 주력 화력을 담당하세요. 트레이서와의 양동 작전이 매우 뛰어납니다.", counter: "위도우메이커, 애쉬 (대처: 긴 사거리 저격수에 취약하므로 방벽을 활용하거나 우회로로 접근하세요.)" },
-    "키리코": { strategy: "벽 타기와 순보를 이용해 다이브 영웅을 적극적으로 케어하고, 정화의 방울로 변수를 완벽히 차단하세요.", counter: "솜브라, 로드호그 (대처: 해킹 당하기 전 미리 순보로 도주하고, 호그의 갈고리 타이밍에 방울을 아끼세요.)" },
-    "자리야": { strategy: "아군 진입 타이밍에 맞춰 방벽을 주어 핑퐁을 유도하고 고에너지를 유지하며 전선을 압살하세요.", counter: "파라, 에코, 위도우메이커 (대처: 고지대와 공중 장악력이 부족하므로 기동성 탱커로 스왑하거나 맵 내부로 끌어들이세요.)" }
-};
-
-// 1. 맵 타일 렌더링 (모든 맵 로드 및 간판 이미지 매칭 보정 버전)
+// 1. 맵 타일 렌더링
 function initMapGrid() {
     mapGrid.innerHTML = '';
 
@@ -181,20 +189,19 @@ function initMapGrid() {
         gridDiv.className = 'map-grid';
 
         category.maps.forEach(mapId => {
-            // 👑 다중 티어 구조화에 따른 맵 유효성 체크 레이어 변경 (all 기준 우선 검사)
-            const tierBox = mapData[currentTier] || mapData['all'];
+            // 👑 정밀 보정: [현재지역][현재티어] 삼중 트리 분리 체크 레이어 적용
+            const regBox = mapData[currentRegion] || mapData['asia'];
+            const tierBox = regBox ? (regBox[currentTier] || regBox['all']) : null;
             const data = tierBox ? tierBox[mapId] : null;
             if (!data) return; 
 
             const btn = document.createElement('button');
             btn.className = 'map-btn';
             btn.dataset.mapId = mapId;
+            if (currentMapId === mapId) btn.classList.add('selected'); // 선택 유지 상태값 동기화
             
-            // 괄호 및 영문 슬러그 파싱 안전 패치
             const mapName = data.name.includes(' (') ? data.name.split(' (')[0] : data.name; 
-            const mapNameEng = data.name.includes('(') ? data.name.split('(')[1].replace(')', '') : data.name; 
             
-            // ⭐️ 은호님의 images/ 폴더 파일명 양식과 100% 대응하도록 이미지 네임 리다이렉트 보정
             let mapImageName = mapName;
             if (mapId === "gibraltar") mapImageName = "감시 기지- 지브롤터";
             else if (mapId === "kingsRow") mapImageName = "왕의 길";
@@ -303,7 +310,6 @@ function initMapGrid() {
     });
 }
 
-// 텍스트 태그 HTML 뱃지 치환 헬퍼
 const formatTextWithBadges = (text) => {
     if (typeof text !== 'string') return text;
     return text
@@ -318,7 +324,6 @@ const formatTextWithBadges = (text) => {
         .replace(/\[서브딜\]\s*/g, '<span class="badge badge-sub-dps">🗡️ 서브딜</span> ');
 };
 
-// 시너지 픽 변환 헬퍼
 const formatSynergyWithIcons = (synergyText) => {
     let tags = '';
     const tagMatch = synergyText.match(/^(\[[^\]]+\]\s*)+/);
@@ -379,7 +384,6 @@ const formatSynergyWithIcons = (synergyText) => {
     return `<div style="margin-bottom: 8px;">${tagsHtml + formatTextWithBadges(synergyText + description)}</div>`;
 };
 
-// 🌐 영어 영웅 이름을 한글로 매핑하는 사전
 const heroNameEnKrMap = {
     "Ana": "아나", "Anran": "안란", "Ashe": "애쉬", "Baptiste": "바티스트", "Bastion": "바스티온", 
     "Brigitte": "브리기테", "Cassidy": "캐서디", "D.Va": "디바", "Domina": "도미나", "Doomfist": "둠피스트", 
@@ -394,7 +398,6 @@ const heroNameEnKrMap = {
     "Winston": "윈스턴", "Wrecking Ball": "레킹볼", "Wuyang": "우양", "Zarya": "자리야", "Zenyatta": "젠야타"
 };
 
-// 단일 영웅 카드 컴포넌트 생성 (승률/픽률 및 서브역할군 뱃지 연동)
 const createHeroElement = (heroStr, rank = null) => {
     const pureName = heroStr.split(' (')[0].trim();
     const statsInfo = heroStr.includes(' (') ? heroStr.split(' (')[1].replace(')', '') : '';
@@ -432,7 +435,6 @@ const createHeroElement = (heroStr, rank = null) => {
             </div>`;
 }
 
-// 5명 전체 리스트 루핑 출력 보정 구현 함수
 const getFormattedHeroes = (heroes) => {
     if (!heroes) return '';
     const heroArray = Array.isArray(heroes) ? heroes : [heroes];
@@ -444,12 +446,13 @@ const getFormattedHeroes = (heroes) => {
 function renderResult(options = { scroll: true }) {
     if (!currentMapId || !currentRole) return;
 
-    // 👑 8개 티어 레이어 트리 연동 구조 변경 (선택된 티어 상자의 전장 정보 추출)
-    const tierBox = mapData[currentTier] || mapData['all'];
+    // 👑 3중 연동 보정: [현재지역][현재티어] 맵 정보 최종 추출
+    const regBox = mapData[currentRegion] || mapData['asia'];
+    const tierBox = regBox ? (regBox[currentTier] || regBox['all']) : null;
     const data = tierBox ? tierBox[currentMapId] : null;
 
     if (!data) {
-        roleDataContent.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:#cbd5e1; padding:30px; background:rgba(0,0,0,0.1); border-radius:8px;">선택한 티어의 통계 지표가 부족하여 데이터를 출력할 수 없습니다.</p>';
+        roleDataContent.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:#cbd5e1; padding:30px; background:rgba(0,0,0,0.1); border-radius:8px;">선택한 서버 및 티어의 통계 지표가 부족하여 데이터를 출력할 수 없습니다.</p>';
         return;
     }
 
@@ -550,7 +553,6 @@ async function loadComments(mapId) {
         });
     } catch (error) {
         commentList.innerHTML = '<p style="text-align: center; color: #e74c3c;">댓글을 불러오는 중 오류가 발생했습니다.</p>';
-        console.error(error);
     }
 }
 
@@ -662,7 +664,6 @@ likeBtn.addEventListener('click', () => {
                     updateLikeButtonUI(data.likes_count, data.is_liked_by_user);
                 }
             } catch (error) {
-                console.error('좋아요 동기화 실패:', error);
                 const rollbackLiked = !newIsLiked;
                 const rollbackCount = rollbackLiked ? newCount + 1 : Math.max(0, newCount - 1);
                 
@@ -710,6 +711,7 @@ async function initApp() {
         if (!response.ok) throw new Error('데이터 파일을 불러오는 데 실패했습니다.');
         mapData = await response.json();
 
+        // 👑 순서 패치: 데이터 적재 완료 후 맵 그리드를 그려야 오류가 안 터집니다!
         initMapGrid();
 
         // --- 🌍 전체 데이터 백그라운드 사전 로딩 (Global Prefetch) --- //
@@ -717,8 +719,8 @@ async function initApp() {
             let delay = 0;
             mapCategories.forEach(category => {
                 category.maps.forEach(mapId => {
-                    // 👑 캐싱 시에도 변경된 구조화 레이어에 맞춰 체크 고도화
-                    const tierBox = mapData[currentTier] || mapData['all'];
+                    const regBox = mapData[currentRegion] || mapData['asia'];
+                    const tierBox = regBox ? (regBox[currentTier] || regBox['all']) : null;
                     if (!tierBox || !tierBox[mapId]) return; 
                     setTimeout(() => {
                         if (!mapLikesCache[mapId]) {
