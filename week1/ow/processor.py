@@ -1,5 +1,6 @@
 import json
 
+# 오버워치 2 공식 영웅별 메인딜/서브딜 및 플레이 스타일 분류 데이터
 HERO_SUB_ROLES = {
     "Reinhardt": "brawl", "Ramattra": "brawl", "Orisa": "brawl", "Doomfist": "dive", 
     "Winston": "dive", "D.Va": "dive", "Wrecking Ball": "dive", "Sigma": "poke", "Zarya": "brawl", "Hazard": "brawl",
@@ -27,7 +28,7 @@ def process_advanced_data():
     multi_tier_data = raw_data.get("GetMapHeroRatesMultiTier", {})
 
     if not multi_tier_data:
-        print("❌ 다중 티어 통계 알맹이를 찾지 못했습니다. JSON 구조를 확인하세요.")
+        print("❌ 다중 티어 통계 알맹이를 찾지 못했습니다. 구조를 다시 확인하세요.")
         return
 
     all_known_maps = {
@@ -40,10 +41,8 @@ def process_advanced_data():
 
     final_output = {}
 
-    # 🔗 각 티어별 상자를 순회하며 독립적인 정렬 맵 구조 생성
     for tier_key, maps_dict in multi_tier_data.items():
-        # 프론트엔드와 매칭 편의를 위해 소문자 키값으로 치환 (ALL -> all, GRANDMASTER -> grandmaster)
-        js_tier_key = tier_key.lower()
+        js_tier_key = tier_key.lower() # 프론트 드롭다운 매칭용 소문자화
         final_output[js_tier_key] = {}
 
         for m_slug, measurements in maps_dict.items():
@@ -65,6 +64,9 @@ def process_advanced_data():
             map_hero_pools = {"tank": [], "damage": [], "support": []}
             if not measurements: continue
 
+            # 🛡️ 중복 데이터를 제어할 최신 데이터 트래커 딕셔너리
+            recent_hero_tracker = {}
+
             for stat in measurements:
                 hero_info = stat.get("hero", {}) or {}
                 h_name = hero_info.get("name")
@@ -73,17 +75,30 @@ def process_advanced_data():
 
                 win_rate = stat.get("winRate", 0) or 0
                 pick_rate = stat.get("pickRate", 0) or 0
-                r_key = h_role.lower()
+                
+                # ⏰ 핵심 변경: 순회하면서 동일 영웅이 또 발견되면, 
+                # 뒤쪽에 들어온 것이 '가장 최신(최근)' 데이터이므로 무조건 덮어씌워 갱신합니다.
+                recent_hero_tracker[h_name] = {
+                    "role": h_role.lower(),
+                    "winRate": win_rate,
+                    "pickRate": pick_rate,
+                    "score": (win_rate * 0.6) + (pick_rate * 0.4)
+                }
 
-                meta_score = (win_rate * 0.6) + (pick_rate * 0.4)
-                formatted_str = f"{h_name} (승률: {win_rate:.1f}%, 픽률: {pick_rate:.1f}%)"
-
+            # 덮어쓰기가 완료된 가장 최신의 고유 데이터들만 역할군 풀 상자에 분배
+            for h_name, h_data in recent_hero_tracker.items():
+                r_key = h_data["role"]
+                formatted_str = f"{h_name} (승률: {h_data['winRate']:.1f}%, 픽률: {h_data['pickRate']:.1f}%)"
+                
                 if r_key in map_hero_pools:
                     map_hero_pools[r_key].append({
-                        "name": h_name, "display": formatted_str, "score": meta_score, "sub_role": HERO_SUB_ROLES.get(h_name, "generic")
+                        "name": h_name, 
+                        "display": formatted_str, 
+                        "score": h_data["score"], 
+                        "sub_role": HERO_SUB_ROLES.get(h_name, "generic")
                     })
 
-            # 3. 컷오프 알고리즘 적용
+            # 3. 각 역할군별 정렬 및 5명 아키타입 컷오프 알고리즘 적용
             for r_type, h_list in map_hero_pools.items():
                 if r_type == "damage":
                     sorted_dps = sorted(h_list, key=lambda x: x["score"], reverse=True)
@@ -104,7 +119,7 @@ def process_advanced_data():
     with open(output_filename, "w", encoding="utf-8") as f:
         json.dump(final_output, f, ensure_ascii=False, indent=4)
         
-    print(f"\n✅ [다중 티어 빌드 완료] '{output_filename}'에 8개 티어 분리 가공이 완벽하게 끝났습니다!")
+    print(f"\n✅ [최신 스냅샷 빌드 완료] 전장 배열 내부의 '가장 최신 데이터'들만 엄선하여 정제를 마쳤습니다!")
 
 if __name__ == "__main__":
     process_advanced_data()
