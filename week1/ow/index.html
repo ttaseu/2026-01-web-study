@@ -13,7 +13,6 @@
     </header>
 
     <div class="container">
-        <!-- Step 1: 역할군 선택 -->
         <section class="step-section" id="step1">
             <h2>Step 1. 역할군 선택</h2>
             <div class="role-buttons">
@@ -32,17 +31,29 @@
             </div>
         </section>
 
-        <!-- Step 2: 맵 선택 -->
         <section class="step-section disabled" id="step2">
             <h2>Step 2. 맵 선택</h2>
             <div id="mapGrid"></div>
         </section>
 
-        <!-- 결과창 -->
         <section id="resultBox" class="hidden">
-            <div class="result-header">
-                <h2 id="resultTitle" class="result-title">맵 이름 - 역할군 전략</h2>
-                <div class="like-section">
+            <div class="result-header" style="display: flex; align-items: center; width: 100%; flex-wrap: wrap; gap: 15px;">
+                <h2 id="resultTitle" class="result-title" style="margin: 0; flex: 1 1 auto;">맵 이름 - 역할군 전략</h2>
+                
+                <div class="tier-select-wrapper" style="display: inline-block;">
+                    <select id="tierSelect" style="background: #1e2630; color: #ffffff; border: 1px solid var(--ow-orange, #f99e1a); padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; outline: none; font-size: 0.95em; transition: all 0.2s ease;">
+                        <option value="all">모든 티어</option>
+                        <option value="bronze">브론즈</option>
+                        <option value="silver">실버</option>
+                        <option value="gold">골드</option>
+                        <option value="platinum">플래티늄</option>
+                        <option value="diamond">다이아몬드</option>
+                        <option value="master">마스터</option>
+                        <option value="grandmaster">그랜드마스터 & 챔피언</option>
+                    </select>
+                </div>
+
+                <div class="like-section" style="display: inline-block;">
                     <button id="likeBtn" class="like-btn">👍 추천해요 <span id="likeCount">0</span></button>
                 </div>
             </div>
@@ -53,10 +64,8 @@
             </div>
 
             <div id="roleDataContent" class="role-content-grid">
-                <!-- JS에서 추천 영웅, 시너지, 카운터 내용이 렌더링됩니다 -->
-            </div>
+                </div>
 
-            <!-- 💬 댓글(방명록) 기능 추가 -->
             <div class="card comment-section">
                 <h3>💬 맵 전술 토론 (방명록)</h3>
                 

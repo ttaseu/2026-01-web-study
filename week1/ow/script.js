@@ -29,6 +29,9 @@ const resultTitle = document.getElementById('resultTitle');
 const strategyList = document.getElementById('strategyList');
 const roleDataContent = document.getElementById('roleDataContent');
 
+// 👑 추가된 티어 선택 셀렉트 박스 DOM
+const tierSelect = document.getElementById('tierSelect');
+
 // 댓글용 DOM Elements
 const commentForm = document.getElementById('commentForm');
 const commentNickname = document.getElementById('commentNickname');
@@ -41,6 +44,7 @@ const likeCount = document.getElementById('likeCount');
 // State Variables
 let currentMapId = null;
 let currentRole = null;
+let currentTier = 'all'; // 👑 티어 상태 변수 기본값 추가
 
 // 사용자 고유 세션 ID 생성 및 관리 (로그인 대용)
 let userSessionId = localStorage.getItem('owMapMaster_sessionId');
@@ -82,6 +86,14 @@ roleButtons.forEach(btn => {
         if (currentMapId) renderResult();
     });
 });
+
+// 👑 티어 선택 드롭다운 체인지 이벤트 리스너 추가
+if (tierSelect) {
+    tierSelect.addEventListener('change', (e) => {
+        currentTier = e.target.value;
+        renderResult({ scroll: false }); // 티어 전환할 때는 부드러운 스크롤 이동 오프
+    });
+}
 
 // --- 렌더링 및 UI 로직 --- //
 
@@ -145,7 +157,7 @@ const modeStrategies = {
 // 영웅별 상세 전략 및 카운터 데이터 (클릭 시 팝업에 표시됨)
 const heroDetailData = {
     "윈스턴": { strategy: "고지대를 점령하고 적의 핵심 지원가를 고립시키는 다이브를 시도하세요.", counter: "리퍼, 바스티온, 로드호그 (대처: 상대의 주요 쿨타임이 빠진 후 진입하거나 방어 매트릭스를 가진 D.Va와 교대하세요.)" },
-    "트레이서": { strategy: "상대 측면과 후방을 교란하여 적 힐러진의 시선을 끌고 본대의 진입 타이밍을 만드세요.", counter: "브리기테, 캐서디, 토르비욘 (대처: 섬광탄/방패 밀쳐내기 사거리를 밖에서 교전하고 포탑 사각지대를 활용하세요.)" },
+    "트레이서": { strategy: "상대 측면และ 후방을 교란하여 적 힐러진의 시선을 끌고 본대의 진입 타이밍을 만드세요.", counter: "브리기테, 캐서디, 토르비욘 (대처: 섬광탄/방패 밀쳐내기 사거리를 밖에서 교전하고 포탑 사각지대를 활용하세요.)" },
     "아나": { strategy: "안전한 원거리에서 힐을 주며, 생체 수류탄으로 적의 회복을 차단하여 킬 각을 만드세요.", counter: "윈스턴, 겐지, 트레이서 (대처: 수면총을 아끼고, 물릴 경우 아군 탱커나 브리기테 쪽으로 빠르게 이동하세요.)" },
     "엠레": { strategy: "우수한 거점 장악력을 바탕으로 팀의 주력 화력을 담당하세요. 트레이서와의 양동 작전이 매우 뛰어납니다.", counter: "위도우메이커, 애쉬 (대처: 긴 사거리 저격수에 취약하므로 방벽을 활용하거나 우회로로 접근하세요.)" },
     "키리코": { strategy: "벽 타기와 순보를 이용해 다이브 영웅을 적극적으로 케어하고, 정화의 방울로 변수를 완벽히 차단하세요.", counter: "솜브라, 로드호그 (대처: 해킹 당하기 전 미리 순보로 도주하고, 호그의 갈고리 타이밍에 방울을 아끼세요.)" },
@@ -169,7 +181,9 @@ function initMapGrid() {
         gridDiv.className = 'map-grid';
 
         category.maps.forEach(mapId => {
-            const data = mapData[mapId];
+            // 👑 다중 티어 구조화에 따른 맵 유효성 체크 레이어 변경 (all 기준 우선 검사)
+            const tierBox = mapData[currentTier] || mapData['all'];
+            const data = tierBox ? tierBox[mapId] : null;
             if (!data) return; 
 
             const btn = document.createElement('button');
@@ -430,7 +444,15 @@ const getFormattedHeroes = (heroes) => {
 function renderResult(options = { scroll: true }) {
     if (!currentMapId || !currentRole) return;
 
-    const data = mapData[currentMapId];
+    // 👑 8개 티어 레이어 트리 연동 구조 변경 (선택된 티어 상자의 전장 정보 추출)
+    const tierBox = mapData[currentTier] || mapData['all'];
+    const data = tierBox ? tierBox[currentMapId] : null;
+
+    if (!data) {
+        roleDataContent.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:#cbd5e1; padding:30px; background:rgba(0,0,0,0.1); border-radius:8px;">선택한 티어의 통계 지표가 부족하여 데이터를 출력할 수 없습니다.</p>';
+        return;
+    }
+
     const roleData = data.roles[currentRole];
 
     let currentCategory = '';
@@ -475,7 +497,7 @@ function renderResult(options = { scroll: true }) {
                     <p style="font-size: 0.9em; margin: 8px 0 0; color: #e0e6ed; line-height: 1.5;">루시우의 속도 버프 등을 받아 다 같이 뭉쳐서 진입한 뒤, 근접 난전을 펼치는 공격적 조합입니다.</p>
                 </div>
                 <div style="flex: 1 1 45%; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px;">
-                    <strong style="color: #9b59cb6; font-size: 1.1em;">🏹 포킹 (Poke)</strong>
+                    <strong style="color: #9b59b6; font-size: 1.1em;">🏹 포킹 (Poke)</strong>
                     <p style="font-size: 0.9em; margin: 8px 0 0; color: #e0e6ed; line-height: 1.5;">긴 사거리의 영웅(시그마, 위도우메이커 등)을 배치해 원거리에서 대미지를 누적시키고 접근을 차단합니다.</p>
                 </div>
                 <div style="flex: 1 1 45%; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px;">
@@ -695,7 +717,9 @@ async function initApp() {
             let delay = 0;
             mapCategories.forEach(category => {
                 category.maps.forEach(mapId => {
-                    if (!mapData[mapId]) return; 
+                    // 👑 캐싱 시에도 변경된 구조화 레이어에 맞춰 체크 고도화
+                    const tierBox = mapData[currentTier] || mapData['all'];
+                    if (!tierBox || !tierBox[mapId]) return; 
                     setTimeout(() => {
                         if (!mapLikesCache[mapId]) {
                             const promise = fetch(`/api/getMapLikes?mapId=${mapId}&user_session_id=${userSessionId}`, { cache: 'no-store' })
