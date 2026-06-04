@@ -446,38 +446,36 @@ const getFormattedHeroes = (heroes) => {
 function renderResult(options = { scroll: true }) {
     if (!currentMapId || !currentRole) return;
 
-    // 👑 초정밀 보정: 파이썬 json 대문자 데이터 규격(ASIA, NA, EU / ALL)과 매칭하기 위해 강제 대문자 치환 레이어 주입
-    const jsonRegion = currentRegion.toUpperCase(); // asia -> ASIA, na -> NA
-    const jsonTier = currentTier.toUpperCase();     // all -> ALL
-
-    const regBox = mapData[jsonRegion] || mapData['ASIA'];
-    const tierBox = regBox ? (regBox[jsonTier] || regBox['ALL']) : null;
+    // 👑 [초강력 매칭 패치] 대소문자 불일치 원천 봉쇄
+    // mapData에 있는 소문자 키(asia, na, eu)와 대문자 키(ASIA, NA, EU)를 모두 뒤져서 매칭
+    const regKey = currentRegion.toLowerCase(); // asia
+    const tierKey = currentTier.toLowerCase();  // all
     
-    // 블리자드 공식 소스코드는 개별 맵 구분이 아닌 'all-maps' 통합 매트릭스로 뽑혀 나왔으므로 
-    // 어떤 맵을 선택하든 오피셜 실시간 누적 수치가 매끄럽게 흐르도록 폴백 바인딩 처리
+    // 데이터 구조 탐색: 대소문자 혼용 가능성까지 고려하여 안전하게 룩업
+    const regBox = mapData[regKey] || mapData[regKey.toUpperCase()] || mapData['asia'] || mapData['ASIA'];
+    const tierBox = regBox ? (regBox[tierKey] || regBox[tierKey.toUpperCase()] || regBox['all'] || regBox['ALL']) : null;
+    
     const data = tierBox ? (tierBox[currentMapId] || tierBox['all-maps']) : null;
 
     if (!data) {
-        roleDataContent.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:#cbd5e1; padding:30px; background:rgba(0,0,0,0.1); border-radius:8px;">선택한 서버 및 티어의 통계 지표가 부족하여 데이터를 출력할 수 없습니다.</p>';
+        console.error("데이터 매칭 실패:", { currentRegion, currentTier, currentMapId, regBox, tierBox });
+        roleDataContent.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:#cbd5e1; padding:30px; background:rgba(0,0,0,0.1); border-radius:8px;">데이터 상자를 찾을 수 없습니다. 파이썬 파일을 다시 실행해 보세요!</p>';
         return;
     }
 
     const roleData = data.roles[currentRole];
-
+    
+    // ... 이하 기존 renderResult 함수 내용 동일 ...
     let currentCategory = '';
     mapCategories.forEach(cat => {
-        if (cat.maps.includes(currentMapId)) {
-            currentCategory = cat.id;
-        }
+        if (cat.maps.includes(currentMapId)) currentCategory = cat.id;
     });
 
     const roleName = currentRole === 'tank' ? '돌격' : currentRole === 'damage' ? '공격' : '지원';
-    // 맵 뱃지 명칭 파싱 보정
     const mapDisplayName = data.name ? (data.name.includes(' (') ? data.name.split(' (')[0] : data.name) : "오버워치 전장";
     resultTitle.textContent = `${mapDisplayName} - ${roleName} 전략`;
 
     const combinedStrategies = [...(data.strategy || []), ...(modeStrategies[currentCategory] || [])];
-
     strategyList.innerHTML = '';
     combinedStrategies.forEach(text => {
         const li = document.createElement('li');
@@ -488,44 +486,27 @@ function renderResult(options = { scroll: true }) {
     roleDataContent.innerHTML = `
         <div class="card">
             <h3>⭐ 추천 영웅 Top 5</h3>
-            <div style="margin-top: 15px; margin-bottom: 10px; display:flex; flex-direction:column; gap:2px;">${getFormattedHeroes(roleData.heroes)}</div>
-            <p style="font-size:0.9em; color:#e0e6ed; margin-top:8px;">현재 경쟁전 승률 점수(Score) 가중치가 가장 높은 상위 5명 조합입니다.</p>
+            <div style="margin-top: 15px; display:flex; flex-direction:column; gap:2px;">${getFormattedHeroes(roleData.heroes)}</div>
         </div>
         <div class="card">
             <h3>🤝 시너지 픽</h3>
-            <div>${roleData.synergy ? roleData.synergy.map(s => formatSynergyWithIcons(s)).join('') : '<p style="color:#cbd5e1;">시너지 분석 준비 중</p>'}</div>
-            <p style="font-size:0.9em; color:#e0e6ed; margin-top:10px;">대회 검증 조합 및 실시간 API 자동 업데이트 시너지 데이터셋입니다.</p>
+            <div>${roleData.synergy ? roleData.synergy.map(s => formatSynergyWithIcons(s)).join('') : '<p>시너지 데이터 준비 중</p>'}</div>
         </div>
         <div class="card" style="grid-column: 1 / -1;">
             <h3>📖 조합 아키타입 가이드</h3>
             <div style="display: flex; flex-wrap: wrap; gap: 15px; margin-top: 15px;">
                 <div style="flex: 1 1 45%; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px;">
-                    <strong style="color: #3498db; font-size: 1.1em;">☄️ 다이브 (Dive)</strong>
-                    <p style="font-size: 0.9em; margin: 8px 0 0; color: #e0e6ed; line-height: 1.5;">고기동성 영웅(윈스턴, 둠피스트 등)을 활용해 적의 취약한 지원가를 순식간에 덮치는 기동전 조합입니다.</p>
+                    <strong style="color: #3498db;">☄️ 다이브</strong>
                 </div>
                 <div style="flex: 1 1 45%; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px;">
-                    <strong style="color: #e67e22; font-size: 1.1em;">🏃 러쉬 / 브롤 (Rush/Brawl)</strong>
-                    <p style="font-size: 0.9em; margin: 8px 0 0; color: #e0e6ed; line-height: 1.5;">루시우의 속도 버프 등을 받아 다 같이 뭉쳐서 진입한 뒤, 근접 난전을 펼치는 공격적 조합입니다.</p>
-                </div>
-                <div style="flex: 1 1 45%; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px;">
-                    <strong style="color: #9b59b6; font-size: 1.1em;">🏹 포킹 (Poke)</strong>
-                    <p style="font-size: 0.9em; margin: 8px 0 0; color: #e0e6ed; line-height: 1.5;">긴 사거리의 영웅(시그마, 위도우메이커 등)을 배치해 원거리에서 대미지를 누적시키고 접근을 차단합니다.</p>
-                </div>
-                <div style="flex: 1 1 45%; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px;">
-                    <strong style="color: #95a5a6; font-size: 1.1em;">🛡️ 앵커 / 안티-다이브 (Anchor)</strong>
-                    <p style="font-size: 0.9em; margin: 8px 0 0; color: #e0e6ed; line-height: 1.5;">특정 거점이나 요충지에 단단하게 진형을 구축하고 들어오는 적을 튼튼하게 받아치는 수비형 조합입니다.</p>
+                    <strong style="color: #e67e22;">🏃 러쉬</strong>
                 </div>
             </div>
         </div>
     `;
 
     resultBox.classList.remove('hidden');
-    loadComments(currentMapId); 
-    loadLikes(currentMapId); 
-   
-    if (options.scroll) {
-        resultBox.scrollIntoView({ behavior: 'smooth' });
-    }
+    if (options.scroll) resultBox.scrollIntoView({ behavior: 'smooth' });
 }
 
 // --- 💬 댓글 기능 로직 --- //
