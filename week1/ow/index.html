@@ -5,6 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>오버워치 전략 가이드</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* 👑 Owtics 오피셜 서버 선택 탭 전용 초정밀 커스텀 CSS 디자인 주입 */
+        .ow-segment-tabs {
+            display: inline-flex;
+            background: #191e24;
+            padding: 4px;
+            border-radius: 8px;
+            border: 1px solid #2d3748;
+        }
+        .ow-tab-btn {
+            background: transparent;
+            color: #a0aec0;
+            border: none;
+            padding: 8px 20px;
+            font-size: 0.95em;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .ow-tab-btn:hover {
+            color: #ffffff;
+        }
+        .ow-tab-btn.active {
+            background: #28323f;
+            color: var(--ow-orange, #f99e1a);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+    </style>
 </head>
 <body>
     <header class="header main-header">
@@ -13,6 +42,7 @@
     </header>
 
     <div class="container">
+        <!-- Step 1: 역할군 선택 -->
         <section class="step-section" id="step1">
             <h2>Step 1. 역할군 선택</h2>
             <div class="role-buttons">
@@ -31,17 +61,27 @@
             </div>
         </section>
 
+        <!-- Step 2: 맵 선택 -->
         <section class="step-section disabled" id="step2">
             <h2>Step 2. 맵 선택</h2>
             <div id="mapGrid"></div>
         </section>
 
+        <!-- 결과창 -->
         <section id="resultBox" class="hidden">
             <div class="result-header" style="display: flex; align-items: center; width: 100%; flex-wrap: wrap; gap: 15px;">
                 <h2 id="resultTitle" class="result-title" style="margin: 0; flex: 1 1 auto;">맵 이름 - 역할군 전략</h2>
                 
+                <!-- 👑 Owtics 스타일 세그먼트 서버 탭 버튼 그룹 이식 -->
+                <div class="ow-segment-tabs">
+                    <button class="ow-tab-btn active" data-region="asia">아시아</button>
+                    <button class="ow-tab-btn" data-region="usa">미국</button>
+                    <button class="ow-tab-btn" data-region="eu">유럽</button>
+                </div>
+
+                <!-- 티어 선택 셀렉트 박스 구역 -->
                 <div class="tier-select-wrapper" style="display: inline-block;">
-                    <select id="tierSelect" style="background: #1e2630; color: #ffffff; border: 1px solid var(--ow-orange, #f99e1a); padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; outline: none; font-size: 0.95em; transition: all 0.2s ease;">
+                    <select id="tierSelect" style="background: #1e2630; color: #ffffff; border: 1px solid var(--ow-orange, #f99e1a); padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; outline: none; font-size: 0.95em;">
                         <option value="all">모든 티어</option>
                         <option value="bronze">브론즈</option>
                         <option value="silver">실버</option>
@@ -64,8 +104,10 @@
             </div>
 
             <div id="roleDataContent" class="role-content-grid">
-                </div>
+                <!-- JS에서 추천 영웅, 시너지, 카운터 내용이 렌더링됩니다 -->
+            </div>
 
+            <!-- 💬 댓글(방명록) 기능 추가 -->
             <div class="card comment-section">
                 <h3>💬 맵 전술 토론 (방명록)</h3>
                 

@@ -32,63 +32,64 @@ def fetch_owtics_data():
             print("❌ 전장 ID 목록을 가져오지 못했습니다.")
             return
 
-        # 🌍 오피셜 서버 실시간 수집 티어 세트 (그마챔 빈 통 방지를 위해 CHAMPION 규격 바인딩)
+        # 🌍 오피셜 서버 실시간 수집 지역 (ALL 제거, 미국 규격 코드인 'NA' 바인딩)
+        regions = ["ASIA", "NA", "EU"]
         tiers = ["ALL", "BRONZE", "SILVER", "GOLD", "PLATINUM", "DIAMOND", "MASTER", "CHAMPION"]
-        all_tier_data = {t: {} for t in tiers}
         
-        print(f"\n🚀 [다중 티어 파이프ライン] 총 {len(maps_items)}개 맵 데이터 수집 가동...")
+        all_matrix_data = {r: {t: {} for t in tiers} for r in regions}
+        
+        print(f"\n🚀 [3대 서버 파이프라인] {len(regions)}개 지역 x {len(tiers)}개 티어 데이터 수집 시작...")
 
-        for target_tier in tiers:
-            print(f"\n📊 [{target_tier}] 티어 데이터 요청 중...")
-            for idx, m_item in enumerate(maps_items):
-                m_id = m_item.get("id")
-                m_slug = m_item.get("slug")
-                if not m_id or not m_slug: continue
-                
-                map_hero_payload = [{
-                    "operationName": "GetMapHeroRates",
-                    "variables": {
-                        "mapId": m_id,
-                        "filter": {
-                            "tier": target_tier
-                        }
-                    },
-                    "query": """query GetMapHeroRates($mapId: ID!, $filter: MapHeroRatesFilterInput) {
-                      node(id: $mapId) {
-                        ... on Map {
-                          heroRates(filter: $filter) {
-                            result {
-                              ... on MapHeroRatesAvailable {
-                                measurements {
-                                  hero {
-                                    name
-                                    role
+        for reg in regions:
+            print(f"\n🌍 [서버 지역: {reg}] 데이터 스캔 가동...")
+            for target_tier in tiers:
+                for idx, m_item in enumerate(maps_items):
+                    m_id = m_item.get("id")
+                    m_slug = m_item.get("slug")
+                    if not m_id or not m_slug: continue
+                    
+                    map_hero_payload = [{
+                        "operationName": "GetMapHeroRates",
+                        "variables": {
+                            "mapId": m_id,
+                            "filter": {
+                                "region": reg,
+                                "mode": "COMPETITIVE",
+                                "tier": target_tier
+                            }
+                        },
+                        "query": """query GetMapHeroRates($mapId: ID!, $filter: MapHeroRatesFilterInput) {
+                          node(id: $mapId) {
+                            ... on Map {
+                              heroRates(filter: $filter) {
+                                result {
+                                  ... on MapHeroRatesAvailable {
+                                    measurements {
+                                      hero {
+                                        name
+                                        role
+                                      }
+                                      winRate
+                                      pickRate
+                                    }
                                   }
-                                  winRate
-                                  pickRate
                                 }
                               }
                             }
                           }
-                        }
-                      }
-                    }"""
-                }]
+                        }"""
+                    }]
 
-                map_res = requests.post(url, headers=headers, json=map_hero_payload)
-                if map_res.ok:
-                    measurements = map_res.json()[0].get("data", {}).get("node", {}).get("heroRates", {}).get("result", {}).get("measurements", [])
-                    all_tier_data[target_tier][m_slug] = measurements
-                    print(f" -> {m_slug} ({idx+1}/{len(maps_items)}) 완료 - 데이터 {len(measurements)}개")
-                else:
-                    print(f" -> ❌ {m_slug} 수집 실패")
-                
-                time.sleep(0.06)
+                    map_res = requests.post(url, headers=headers, json=map_hero_payload)
+                    if map_res.ok:
+                        measurements = map_res.json()[0].get("data", {}).get("node", {}).get("heroRates", {}).get("result", {}).get("measurements", [])
+                        all_matrix_data[reg][target_tier][m_slug] = measurements
+                    time.sleep(0.04)
 
         with open("owtics_raw_data.json", "w", encoding="utf-8") as f:
-            json.dump({"GetMapHeroRatesMultiTier": all_tier_data}, f, ensure_ascii=False, indent=4)
+            json.dump({"GetMapHeroRatesGlobalMatrix": all_matrix_data}, f, ensure_ascii=False, indent=4)
             
-        print("\n✅ [수집 완료] 모든 티어별 최신 지표 원본이 'owtics_raw_data.json'에 저장되었습니다!")
+        print("\n✅ [수집 완료] 3대 서버 지역별 지표가 'owtics_raw_data.json'에 무사히 저장되었습니다!")
 
     except Exception as e:
         print(f"❌ 스크래핑 엔진 가동 중 에러 발생: {e}")
