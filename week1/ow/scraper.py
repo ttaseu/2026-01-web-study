@@ -9,7 +9,6 @@ def fetch_owtics_data():
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
     }
 
-    # 1. 전장(Map) 고유 ID 및 슬러그 목록 조회
     map_list_payload = [{
         "operationName": "GetMapsList",
         "variables": {},
@@ -33,16 +32,14 @@ def fetch_owtics_data():
             print("❌ 전장 ID 목록을 가져오지 못했습니다.")
             return
 
-        # 🌍 오버워치 통계 사이트 전용 8대 티어 영문 코드 규격 목록
-        tiers = ["ALL", "BRONZE", "SILVER", "GOLD", "PLATINUM", "DIAMOND", "MASTER", "GRANDMASTER"]
-        
-        # { 티어명: { 맵슬러그: [데이터] } } 구조로 빌드업
+        # 🌍 오피셜 서버 실시간 수집 티어 세트 (그마챔 빈 통 방지를 위해 CHAMPION 규격 바인딩)
+        tiers = ["ALL", "BRONZE", "SILVER", "GOLD", "PLATINUM", "DIAMOND", "MASTER", "CHAMPION"]
         all_tier_data = {t: {} for t in tiers}
         
-        print(f"\n🚀 [전체 티어 파이프라인] 총 {len(maps_items)}개 맵 x {len(tiers)}개 티어 데이터 수집을 시작합니다...")
+        print(f"\n🚀 [다중 티어 파이프ライン] 총 {len(maps_items)}개 맵 데이터 수집 가동...")
 
         for target_tier in tiers:
-            print(f"\n📊 [{target_tier}] 티어 데이터 수집 중...")
+            print(f"\n📊 [{target_tier}] 티어 데이터 요청 중...")
             for idx, m_item in enumerate(maps_items):
                 m_id = m_item.get("id")
                 m_slug = m_item.get("slug")
@@ -86,16 +83,15 @@ def fetch_owtics_data():
                 else:
                     print(f" -> ❌ {m_slug} 수집 실패")
                 
-                # 과도한 트래픽 요청 방지를 위한 미세한 디레이 매칭
-                time.sleep(0.05)
+                time.sleep(0.06)
 
         with open("owtics_raw_data.json", "w", encoding="utf-8") as f:
             json.dump({"GetMapHeroRatesMultiTier": all_tier_data}, f, ensure_ascii=False, indent=4)
             
-        print("\n✅ [성공] 8개 모든 티어별 진짜 원본 데이터가 'owtics_raw_data.json'에 통합 완료되었습니다!")
+        print("\n✅ [수집 완료] 모든 티어별 최신 지표 원본이 'owtics_raw_data.json'에 저장되었습니다!")
 
     except Exception as e:
-        print(f"❌ 스크래핑 가동 중 치명적 에러 발생: {e}")
+        print(f"❌ 스크래핑 엔진 가동 중 에러 발생: {e}")
 
 if __name__ == "__main__":
     fetch_owtics_data()
