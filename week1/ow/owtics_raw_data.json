@@ -1,480 +1,418 @@
 {
-    "GetMapsTopPicks": {
-        "mapsTopPicks": {
-            "__typename": "MapsTopPicksAvailable",
-            "lastUpdatedAt": "2026-06-02T18:00:33.410Z",
-            "entries": [
-                {
-                    "rank": 1,
-                    "map": {
-                        "id": "TWFwOjc=",
-                        "name": "Oasis",
-                        "slug": "oasis",
-                        "mode": "CONTROL"
+    "GetHeroesStatistics": {
+        "heroesRatesOverview": {
+            "result": {
+                "measurements": [
+                    {
+                        "hero": {
+                            "name": "Echo",
+                            "role": "DAMAGE"
+                        },
+                        "winRate": 50.4,
+                        "pickRate": 4.6
                     },
-                    "topByRole": [
-                        {
-                            "role": "TANK",
-                            "measurement": {
-                                "pickRate": 13.6,
-                                "winRate": 51.7,
-                                "hero": {
-                                    "id": "SGVybzozNA==",
-                                    "name": "Winston",
-                                    "role": "TANK"
-                                }
-                            }
+                    {
+                        "hero": {
+                            "name": "Emre",
+                            "role": "DAMAGE"
                         },
-                        {
-                            "role": "DAMAGE",
-                            "measurement": {
-                                "pickRate": 47,
-                                "winRate": 51.2,
-                                "hero": {
-                                    "id": "SGVybzoyNw==",
-                                    "name": "Cassidy",
-                                    "role": "DAMAGE"
-                                }
-                            }
-                        },
-                        {
-                            "role": "SUPPORT",
-                            "measurement": {
-                                "pickRate": 62.7,
-                                "winRate": 50.6,
-                                "hero": {
-                                    "id": "SGVybzo5",
-                                    "name": "Kiriko",
-                                    "role": "SUPPORT"
-                                }
-                            }
-                        }
-                    ]
-                },
-                {
-                    "rank": 2,
-                    "map": {
-                        "id": "TWFwOjIw",
-                        "name": "Watchpoint: Gibraltar",
-                        "slug": "watchpoint-gibraltar",
-                        "mode": "ESCORT"
+                        "winRate": 48.8,
+                        "pickRate": 12.4
                     },
-                    "topByRole": [
-                        {
-                            "role": "TANK",
-                            "measurement": {
-                                "pickRate": 32.5,
-                                "winRate": 54.2,
-                                "hero": {
-                                    "id": "SGVybzozNA==",
-                                    "name": "Winston",
-                                    "role": "TANK"
-                                }
-                            }
+                    {
+                        "hero": {
+                            "name": "Illari",
+                            "role": "SUPPORT"
                         },
-                        {
-                            "role": "DAMAGE",
-                            "measurement": {
-                                "pickRate": 27,
-                                "winRate": 44.5,
-                                "hero": {
-                                    "id": "SGVybzoyNw==",
-                                    "name": "Cassidy",
-                                    "role": "DAMAGE"
-                                }
-                            }
-                        },
-                        {
-                            "role": "SUPPORT",
-                            "measurement": {
-                                "pickRate": 68.3,
-                                "winRate": 55.4,
-                                "hero": {
-                                    "id": "SGVybzoxOA==",
-                                    "name": "Ana",
-                                    "role": "SUPPORT"
-                                }
-                            }
-                        }
-                    ]
-                },
-                {
-                    "rank": 3,
-                    "map": {
-                        "id": "TWFwOjY=",
-                        "name": "Esperança",
-                        "slug": "esperanca",
-                        "mode": "PUSH"
+                        "winRate": 50.8,
+                        "pickRate": 9.1
                     },
-                    "topByRole": [
-                        {
-                            "role": "TANK",
-                            "measurement": {
-                                "pickRate": 19.4,
-                                "winRate": 54.6,
-                                "hero": {
-                                    "id": "SGVybzozNA==",
-                                    "name": "Winston",
-                                    "role": "TANK"
-                                }
-                            }
+                    {
+                        "hero": {
+                            "name": "Junker Queen",
+                            "role": "TANK"
                         },
-                        {
-                            "role": "DAMAGE",
-                            "measurement": {
-                                "pickRate": 40.7,
-                                "winRate": 51.4,
-                                "hero": {
-                                    "id": "SGVybzo0MA==",
-                                    "name": "Tracer",
-                                    "role": "DAMAGE"
-                                }
-                            }
-                        },
-                        {
-                            "role": "SUPPORT",
-                            "measurement": {
-                                "pickRate": 63.3,
-                                "winRate": 53.5,
-                                "hero": {
-                                    "id": "SGVybzo5",
-                                    "name": "Kiriko",
-                                    "role": "SUPPORT"
-                                }
-                            }
-                        }
-                    ]
-                },
-                {
-                    "rank": 4,
-                    "map": {
-                        "id": "TWFwOjE2",
-                        "name": "Suravasa",
-                        "slug": "suravasa",
-                        "mode": "FLASHPOINT"
+                        "winRate": 49.4,
+                        "pickRate": 2.6
                     },
-                    "topByRole": [
-                        {
-                            "role": "TANK",
-                            "measurement": {
-                                "pickRate": 13,
-                                "winRate": 53.2,
-                                "hero": {
-                                    "id": "SGVybzoxOQ==",
-                                    "name": "Doomfist",
-                                    "role": "TANK"
-                                }
-                            }
+                    {
+                        "hero": {
+                            "name": "Juno",
+                            "role": "SUPPORT"
                         },
-                        {
-                            "role": "DAMAGE",
-                            "measurement": {
-                                "pickRate": 41.6,
-                                "winRate": 47.8,
-                                "hero": {
-                                    "id": "SGVybzoyNw==",
-                                    "name": "Cassidy",
-                                    "role": "DAMAGE"
-                                }
-                            }
-                        },
-                        {
-                            "role": "SUPPORT",
-                            "measurement": {
-                                "pickRate": 64.3,
-                                "winRate": 52,
-                                "hero": {
-                                    "id": "SGVybzo5",
-                                    "name": "Kiriko",
-                                    "role": "SUPPORT"
-                                }
-                            }
-                        }
-                    ]
-                },
-                {
-                    "rank": 5,
-                    "map": {
-                        "id": "TWFwOjM=",
-                        "name": "New Queen Street",
-                        "slug": "new-queen-street",
-                        "mode": "PUSH"
+                        "winRate": 49.2,
+                        "pickRate": 7.1
                     },
-                    "topByRole": [
-                        {
-                            "role": "TANK",
-                            "measurement": {
-                                "pickRate": 15.5,
-                                "winRate": 52.6,
-                                "hero": {
-                                    "id": "SGVybzozNA==",
-                                    "name": "Winston",
-                                    "role": "TANK"
-                                }
-                            }
+                    {
+                        "hero": {
+                            "name": "Kiriko",
+                            "role": "SUPPORT"
                         },
-                        {
-                            "role": "DAMAGE",
-                            "measurement": {
-                                "pickRate": 38.6,
-                                "winRate": 53.8,
-                                "hero": {
-                                    "id": "SGVybzo0MA==",
-                                    "name": "Tracer",
-                                    "role": "DAMAGE"
-                                }
-                            }
-                        },
-                        {
-                            "role": "SUPPORT",
-                            "measurement": {
-                                "pickRate": 63.3,
-                                "winRate": 51.9,
-                                "hero": {
-                                    "id": "SGVybzo5",
-                                    "name": "Kiriko",
-                                    "role": "SUPPORT"
-                                }
-                            }
-                        }
-                    ]
-                },
-                {
-                    "rank": 6,
-                    "map": {
-                        "id": "TWFwOjM2",
-                        "name": "Aatlis",
-                        "slug": "aatlis",
-                        "mode": "FLASHPOINT"
+                        "winRate": 49.7,
+                        "pickRate": 53.2
                     },
-                    "topByRole": [
-                        {
-                            "role": "TANK",
-                            "measurement": {
-                                "pickRate": 14.3,
-                                "winRate": 56.5,
-                                "hero": {
-                                    "id": "SGVybzo0NQ==",
-                                    "name": "Hazard",
-                                    "role": "TANK"
-                                }
-                            }
+                    {
+                        "hero": {
+                            "name": "Lifeweaver",
+                            "role": "SUPPORT"
                         },
-                        {
-                            "role": "DAMAGE",
-                            "measurement": {
-                                "pickRate": 42.6,
-                                "winRate": 50.2,
-                                "hero": {
-                                    "id": "SGVybzoyNw==",
-                                    "name": "Cassidy",
-                                    "role": "DAMAGE"
-                                }
-                            }
-                        },
-                        {
-                            "role": "SUPPORT",
-                            "measurement": {
-                                "pickRate": 67.2,
-                                "winRate": 50.2,
-                                "hero": {
-                                    "id": "SGVybzo5",
-                                    "name": "Kiriko",
-                                    "role": "SUPPORT"
-                                }
-                            }
-                        }
-                    ]
-                },
-                {
-                    "rank": 7,
-                    "map": {
-                        "id": "TWFwOjE1",
-                        "name": "New Junk City",
-                        "slug": "new-junk-city",
-                        "mode": "FLASHPOINT"
+                        "winRate": 47.4,
+                        "pickRate": 6.5
                     },
-                    "topByRole": [
-                        {
-                            "role": "TANK",
-                            "measurement": {
-                                "pickRate": 13.2,
-                                "winRate": 55.8,
-                                "hero": {
-                                    "id": "SGVybzo0NQ==",
-                                    "name": "Hazard",
-                                    "role": "TANK"
-                                }
-                            }
+                    {
+                        "hero": {
+                            "name": "Mauga",
+                            "role": "TANK"
                         },
-                        {
-                            "role": "DAMAGE",
-                            "measurement": {
-                                "pickRate": 41.2,
-                                "winRate": 49.8,
-                                "hero": {
-                                    "id": "SGVybzoyNw==",
-                                    "name": "Cassidy",
-                                    "role": "DAMAGE"
-                                }
-                            }
-                        },
-                        {
-                            "role": "SUPPORT",
-                            "measurement": {
-                                "pickRate": 64.9,
-                                "winRate": 51.1,
-                                "hero": {
-                                    "id": "SGVybzo5",
-                                    "name": "Kiriko",
-                                    "role": "SUPPORT"
-                                }
-                            }
-                        }
-                    ]
-                },
-                {
-                    "rank": 8,
-                    "map": {
-                        "id": "TWFwOjEx",
-                        "name": "Busan",
-                        "slug": "busan",
-                        "mode": "CONTROL"
+                        "winRate": 47.5,
+                        "pickRate": 10.2
                     },
-                    "topByRole": [
-                        {
-                            "role": "TANK",
-                            "measurement": {
-                                "pickRate": 15,
-                                "winRate": 53.1,
-                                "hero": {
-                                    "id": "SGVybzozNA==",
-                                    "name": "Winston",
-                                    "role": "TANK"
-                                }
-                            }
+                    {
+                        "hero": {
+                            "name": "Mercy",
+                            "role": "SUPPORT"
                         },
-                        {
-                            "role": "DAMAGE",
-                            "measurement": {
-                                "pickRate": 37.7,
-                                "winRate": 48.2,
-                                "hero": {
-                                    "id": "SGVybzoyNw==",
-                                    "name": "Cassidy",
-                                    "role": "DAMAGE"
-                                }
-                            }
-                        },
-                        {
-                            "role": "SUPPORT",
-                            "measurement": {
-                                "pickRate": 58.9,
-                                "winRate": 49.4,
-                                "hero": {
-                                    "id": "SGVybzo5",
-                                    "name": "Kiriko",
-                                    "role": "SUPPORT"
-                                }
-                            }
-                        }
-                    ]
-                },
-                {
-                    "rank": 9,
-                    "map": {
-                        "id": "TWFwOjQ=",
-                        "name": "Runasapi",
-                        "slug": "runasapi",
-                        "mode": "PUSH"
+                        "winRate": 46.9,
+                        "pickRate": 6.9
                     },
-                    "topByRole": [
-                        {
-                            "role": "TANK",
-                            "measurement": {
-                                "pickRate": 14.3,
-                                "winRate": 50.2,
-                                "hero": {
-                                    "id": "SGVybzozNA==",
-                                    "name": "Winston",
-                                    "role": "TANK"
-                                }
-                            }
+                    {
+                        "hero": {
+                            "name": "Mizuki",
+                            "role": "SUPPORT"
                         },
-                        {
-                            "role": "DAMAGE",
-                            "measurement": {
-                                "pickRate": 38.7,
-                                "winRate": 52.1,
-                                "hero": {
-                                    "id": "SGVybzo0MA==",
-                                    "name": "Tracer",
-                                    "role": "DAMAGE"
-                                }
-                            }
-                        },
-                        {
-                            "role": "SUPPORT",
-                            "measurement": {
-                                "pickRate": 61.6,
-                                "winRate": 51.7,
-                                "hero": {
-                                    "id": "SGVybzo5",
-                                    "name": "Kiriko",
-                                    "role": "SUPPORT"
-                                }
-                            }
-                        }
-                    ]
-                },
-                {
-                    "rank": 10,
-                    "map": {
-                        "id": "TWFwOjEz",
-                        "name": "Ilios",
-                        "slug": "ilios",
-                        "mode": "CONTROL"
+                        "winRate": 49.9,
+                        "pickRate": 8.9
                     },
-                    "topByRole": [
-                        {
-                            "role": "TANK",
-                            "measurement": {
-                                "pickRate": 18.8,
-                                "winRate": 53.5,
-                                "hero": {
-                                    "id": "SGVybzozNA==",
-                                    "name": "Winston",
-                                    "role": "TANK"
-                                }
-                            }
+                    {
+                        "hero": {
+                            "name": "Orisa",
+                            "role": "TANK"
                         },
-                        {
-                            "role": "DAMAGE",
-                            "measurement": {
-                                "pickRate": 40.7,
-                                "winRate": 48.4,
-                                "hero": {
-                                    "id": "SGVybzoyNw==",
-                                    "name": "Cassidy",
-                                    "role": "DAMAGE"
-                                }
-                            }
+                        "winRate": 47.2,
+                        "pickRate": 11.8
+                    },
+                    {
+                        "hero": {
+                            "name": "Pharah",
+                            "role": "DAMAGE"
                         },
-                        {
-                            "role": "SUPPORT",
-                            "measurement": {
-                                "pickRate": 60.2,
-                                "winRate": 49.2,
-                                "hero": {
-                                    "id": "SGVybzo5",
-                                    "name": "Kiriko",
-                                    "role": "SUPPORT"
-                                }
-                            }
-                        }
-                    ]
-                }
-            ]
+                        "winRate": 53.2,
+                        "pickRate": 5.3
+                    },
+                    {
+                        "hero": {
+                            "name": "Ramattra",
+                            "role": "TANK"
+                        },
+                        "winRate": 48.5,
+                        "pickRate": 6
+                    },
+                    {
+                        "hero": {
+                            "name": "Reinhardt",
+                            "role": "TANK"
+                        },
+                        "winRate": 48.9,
+                        "pickRate": 7.4
+                    },
+                    {
+                        "hero": {
+                            "name": "Roadhog",
+                            "role": "TANK"
+                        },
+                        "winRate": 43.4,
+                        "pickRate": 6
+                    },
+                    {
+                        "hero": {
+                            "name": "Sierra",
+                            "role": "DAMAGE"
+                        },
+                        "winRate": 50.8,
+                        "pickRate": 17.9
+                    },
+                    {
+                        "hero": {
+                            "name": "Sigma",
+                            "role": "TANK"
+                        },
+                        "winRate": 53.2,
+                        "pickRate": 12.1
+                    },
+                    {
+                        "hero": {
+                            "name": "Sojourn",
+                            "role": "DAMAGE"
+                        },
+                        "winRate": 44.8,
+                        "pickRate": 11
+                    },
+                    {
+                        "hero": {
+                            "name": "Sombra",
+                            "role": "DAMAGE"
+                        },
+                        "winRate": 48.2,
+                        "pickRate": 3
+                    },
+                    {
+                        "hero": {
+                            "name": "Ashe",
+                            "role": "DAMAGE"
+                        },
+                        "winRate": 50.2,
+                        "pickRate": 8.3
+                    },
+                    {
+                        "hero": {
+                            "name": "Baptiste",
+                            "role": "SUPPORT"
+                        },
+                        "winRate": 46.1,
+                        "pickRate": 6.1
+                    },
+                    {
+                        "hero": {
+                            "name": "Domina",
+                            "role": "TANK"
+                        },
+                        "winRate": 52.1,
+                        "pickRate": 4.4
+                    },
+                    {
+                        "hero": {
+                            "name": "Torbjörn",
+                            "role": "DAMAGE"
+                        },
+                        "winRate": 49,
+                        "pickRate": 3.5
+                    },
+                    {
+                        "hero": {
+                            "name": "Hanzo",
+                            "role": "DAMAGE"
+                        },
+                        "winRate": 49,
+                        "pickRate": 6.3
+                    },
+                    {
+                        "hero": {
+                            "name": "Winston",
+                            "role": "TANK"
+                        },
+                        "winRate": 51.3,
+                        "pickRate": 9.5
+                    },
+                    {
+                        "hero": {
+                            "name": "Zarya",
+                            "role": "TANK"
+                        },
+                        "winRate": 49.9,
+                        "pickRate": 7.5
+                    },
+                    {
+                        "hero": {
+                            "name": "Reaper",
+                            "role": "DAMAGE"
+                        },
+                        "winRate": 52.7,
+                        "pickRate": 15.9
+                    },
+                    {
+                        "hero": {
+                            "name": "Soldier: 76",
+                            "role": "DAMAGE"
+                        },
+                        "winRate": 48.3,
+                        "pickRate": 15
+                    },
+                    {
+                        "hero": {
+                            "name": "Vendetta",
+                            "role": "DAMAGE"
+                        },
+                        "winRate": 47.8,
+                        "pickRate": 2.1
+                    },
+                    {
+                        "hero": {
+                            "name": "Junkrat",
+                            "role": "DAMAGE"
+                        },
+                        "winRate": 48.2,
+                        "pickRate": 5.2
+                    },
+                    {
+                        "hero": {
+                            "name": "Moira",
+                            "role": "SUPPORT"
+                        },
+                        "winRate": 47.6,
+                        "pickRate": 14.2
+                    },
+                    {
+                        "hero": {
+                            "name": "Bastion",
+                            "role": "DAMAGE"
+                        },
+                        "winRate": 47.5,
+                        "pickRate": 8
+                    },
+                    {
+                        "hero": {
+                            "name": "Brigitte",
+                            "role": "SUPPORT"
+                        },
+                        "winRate": 49.2,
+                        "pickRate": 4.3
+                    },
+                    {
+                        "hero": {
+                            "name": "Cassidy",
+                            "role": "DAMAGE"
+                        },
+                        "winRate": 47.1,
+                        "pickRate": 24
+                    },
+                    {
+                        "hero": {
+                            "name": "Jetpack Cat",
+                            "role": "SUPPORT"
+                        },
+                        "winRate": 46.4,
+                        "pickRate": 3.1
+                    },
+                    {
+                        "hero": {
+                            "name": "Doomfist",
+                            "role": "TANK"
+                        },
+                        "winRate": 52.2,
+                        "pickRate": 6.6
+                    },
+                    {
+                        "hero": {
+                            "name": "D.Va",
+                            "role": "TANK"
+                        },
+                        "winRate": 48.5,
+                        "pickRate": 7
+                    },
+                    {
+                        "hero": {
+                            "name": "Freja",
+                            "role": "DAMAGE"
+                        },
+                        "winRate": 47.9,
+                        "pickRate": 5.2
+                    },
+                    {
+                        "hero": {
+                            "name": "Genji",
+                            "role": "DAMAGE"
+                        },
+                        "winRate": 52,
+                        "pickRate": 13.9
+                    },
+                    {
+                        "hero": {
+                            "name": "Lúcio",
+                            "role": "SUPPORT"
+                        },
+                        "winRate": 47.3,
+                        "pickRate": 5.3
+                    },
+                    {
+                        "hero": {
+                            "name": "Mei",
+                            "role": "DAMAGE"
+                        },
+                        "winRate": 49.4,
+                        "pickRate": 6.1
+                    },
+                    {
+                        "hero": {
+                            "name": "Ana",
+                            "role": "SUPPORT"
+                        },
+                        "winRate": 50.2,
+                        "pickRate": 48.3
+                    },
+                    {
+                        "hero": {
+                            "name": "Anran",
+                            "role": "DAMAGE"
+                        },
+                        "winRate": 52.1,
+                        "pickRate": 10.1
+                    },
+                    {
+                        "hero": {
+                            "name": "Symmetra",
+                            "role": "DAMAGE"
+                        },
+                        "winRate": 53.2,
+                        "pickRate": 3.5
+                    },
+                    {
+                        "hero": {
+                            "name": "Tracer",
+                            "role": "DAMAGE"
+                        },
+                        "winRate": 50.5,
+                        "pickRate": 11.3
+                    },
+                    {
+                        "hero": {
+                            "name": "Venture",
+                            "role": "DAMAGE"
+                        },
+                        "winRate": 51.9,
+                        "pickRate": 3
+                    },
+                    {
+                        "hero": {
+                            "name": "Widowmaker",
+                            "role": "DAMAGE"
+                        },
+                        "winRate": 49.2,
+                        "pickRate": 4.2
+                    },
+                    {
+                        "hero": {
+                            "name": "Wrecking Ball",
+                            "role": "TANK"
+                        },
+                        "winRate": 48.3,
+                        "pickRate": 3.1
+                    },
+                    {
+                        "hero": {
+                            "name": "Wuyang",
+                            "role": "SUPPORT"
+                        },
+                        "winRate": 52.6,
+                        "pickRate": 12.8
+                    },
+                    {
+                        "hero": {
+                            "name": "Zenyatta",
+                            "role": "SUPPORT"
+                        },
+                        "winRate": 53,
+                        "pickRate": 14
+                    },
+                    {
+                        "hero": {
+                            "name": "Hazard",
+                            "role": "TANK"
+                        },
+                        "winRate": 53.1,
+                        "pickRate": 5.8
+                    }
+                ]
+            }
         }
     }
 }
