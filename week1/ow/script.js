@@ -446,10 +446,16 @@ const getFormattedHeroes = (heroes) => {
 function renderResult(options = { scroll: true }) {
     if (!currentMapId || !currentRole) return;
 
-    // 👑 3중 연동 보정: [현재지역][현재티어] 맵 정보 최종 추출
-    const regBox = mapData[currentRegion] || mapData['asia'];
-    const tierBox = regBox ? (regBox[currentTier] || regBox['all']) : null;
-    const data = tierBox ? tierBox[currentMapId] : null;
+    // 👑 초정밀 보정: 파이썬 json 대문자 데이터 규격(ASIA, NA, EU / ALL)과 매칭하기 위해 강제 대문자 치환 레이어 주입
+    const jsonRegion = currentRegion.toUpperCase(); // asia -> ASIA, na -> NA
+    const jsonTier = currentTier.toUpperCase();     // all -> ALL
+
+    const regBox = mapData[jsonRegion] || mapData['ASIA'];
+    const tierBox = regBox ? (regBox[jsonTier] || regBox['ALL']) : null;
+    
+    // 블리자드 공식 소스코드는 개별 맵 구분이 아닌 'all-maps' 통합 매트릭스로 뽑혀 나왔으므로 
+    // 어떤 맵을 선택하든 오피셜 실시간 누적 수치가 매끄럽게 흐르도록 폴백 바인딩 처리
+    const data = tierBox ? (tierBox[currentMapId] || tierBox['all-maps']) : null;
 
     if (!data) {
         roleDataContent.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:#cbd5e1; padding:30px; background:rgba(0,0,0,0.1); border-radius:8px;">선택한 서버 및 티어의 통계 지표가 부족하여 데이터를 출력할 수 없습니다.</p>';
@@ -466,9 +472,11 @@ function renderResult(options = { scroll: true }) {
     });
 
     const roleName = currentRole === 'tank' ? '돌격' : currentRole === 'damage' ? '공격' : '지원';
-    resultTitle.textContent = `${data.name} - ${roleName} 전략`;
+    // 맵 뱃지 명칭 파싱 보정
+    const mapDisplayName = data.name ? (data.name.includes(' (') ? data.name.split(' (')[0] : data.name) : "오버워치 전장";
+    resultTitle.textContent = `${mapDisplayName} - ${roleName} 전략`;
 
-    const combinedStrategies = [...data.strategy, ...(modeStrategies[currentCategory] || [])];
+    const combinedStrategies = [...(data.strategy || []), ...(modeStrategies[currentCategory] || [])];
 
     strategyList.innerHTML = '';
     combinedStrategies.forEach(text => {
@@ -485,7 +493,7 @@ function renderResult(options = { scroll: true }) {
         </div>
         <div class="card">
             <h3>🤝 시너지 픽</h3>
-            <div>${roleData.synergy.map(s => formatSynergyWithIcons(s)).join('')}</div>
+            <div>${roleData.synergy ? roleData.synergy.map(s => formatSynergyWithIcons(s)).join('') : '<p style="color:#cbd5e1;">시너지 분석 준비 중</p>'}</div>
             <p style="font-size:0.9em; color:#e0e6ed; margin-top:10px;">대회 검증 조합 및 실시간 API 자동 업데이트 시너지 데이터셋입니다.</p>
         </div>
         <div class="card" style="grid-column: 1 / -1;">
