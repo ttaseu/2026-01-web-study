@@ -1,4 +1,4 @@
-// 범용적인 추천 영웅 템플릿
+// 범용적인 추천 영웅 템플릿 (폴백용)
 const defaultRoleData = {
     brawl: {
         tank: { heroes: ["라인하르트", "라마트라", "오리사"], synergy: ["루시우", "바티스트"], counter: "파라" },
@@ -21,7 +21,7 @@ let mapData = {};
 
 // DOM Elements
 const mapGrid = document.getElementById('mapGrid');
-const step2Section = document.getElementById('step2');
+const step2Section = document.getElementById('step2'); // 폴백용
 const roleButtons = document.querySelectorAll('.role-item');
 const resultBox = document.getElementById('resultBox');
 const resultTitle = document.getElementById('resultTitle');
@@ -32,8 +32,8 @@ const tierSelect = document.getElementById('tierSelect');
 
 let currentMapId = null;
 let currentRole = null;
-let currentRegion = 'asia'; 
-let currentTier = 'all';    
+let currentRegion = 'ASIA'; // 👑 json 데이터 포맷에 맞게 대문자로 기본값 설정
+let currentTier = 'ALL';     // 👑 json 데이터 포맷에 맞게 대문자로 기본값 설정
 
 const mapCategories = [
     { id: 'control', name: '쟁탈', maps: ['ilios', 'lijiangTower', 'nepal', 'oasis', 'busan', 'samoa', 'antarcticPeninsula'] },
@@ -56,9 +56,24 @@ const modeStrategies = {
     escort: ["[공통] 구간마다 유기적인 영웅 스왑 운영 권장", "[공통] 경유지 통과 후 고지대 자리 선점 우선"],
     hybrid: ["[공통] A거점 돌파 후 화물 호위 지형지물 활용", "[공통] 공격 시 오프닝 픽을 위한 사이드 흔들기"],
     push: ["[공통] 로봇 리드 시 과감한 궁극기 투자로 이득 극대화", "[공통] 리스폰 관리 및 잘 지는 턴 넘기기 연습"],
-    push: ["[공통] 로봇 리드 시 과감한 궁극기 투자로 이득 극대화", "[공통] 리스폰 관리 및 잘 지는 턴 넘기기 연습"],
     flashpoint: ["[공통] 거점 활성화 전 이동 동선 교전 전면 배제", "[공통] 점령 속도가 빠르므로 거점 밟기 포커싱"]
 };
+
+// 👑 안전하게 데이터를 꺼내오는 마스터 유틸 함수 (대문자 변환 매칭 철저 보장)
+function getTargetMapData(reg, tier, mapId) {
+    if (!mapData) return null;
+    const rKey = reg.toUpperCase(); // 무조건 대문자로 변환 (ASIA, NA, EU)
+    const tKey = tier.toUpperCase(); // 무조건 대문자로 변환 (ALL, GOLD 등)
+    
+    const regBox = mapData[rKey];
+    if (!regBox) return null;
+    
+    const tierBox = regBox[tKey];
+    if (!tierBox) return null;
+    
+    // 맵 ID 매칭 (소문자, 원래키 둘 다 방어)
+    return tierBox[mapId] || tierBox[mapId.toLowerCase()];
+}
 
 // 역할군 선택 이벤트
 roleButtons.forEach(btn => {
@@ -66,7 +81,15 @@ roleButtons.forEach(btn => {
         roleButtons.forEach(b => b.classList.remove('selected'));
         btn.classList.add('selected');
         currentRole = btn.dataset.role;
-        step2Section.classList.remove('disabled');
+        
+        if (step2Section) {
+            step2Section.classList.remove('disabled');
+            step2Section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else if (mapGrid) {
+            // 👑 step2 아이디가 없을 때를 대비해 맵 선택 공간으로 부드럽게 안내하는 안전장치
+            mapGrid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        
         if (currentMapId) renderResult();
     });
 });
@@ -77,9 +100,9 @@ if (regionTabButtons.length > 0) {
         btn.addEventListener('click', () => {
             regionTabButtons.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            let selectedRegion = btn.dataset.region;
+            let selectedRegion = btn.dataset.region || 'asia';
             if (selectedRegion === 'usa') selectedRegion = 'na';
-            currentRegion = selectedRegion;
+            currentRegion = selectedRegion.toUpperCase();
             initMapGrid();
             if (currentMapId) renderResult({ scroll: false });
         });
@@ -89,28 +112,15 @@ if (regionTabButtons.length > 0) {
 // 티어 선택 이벤트
 if (tierSelect) {
     tierSelect.addEventListener('change', (e) => {
-        currentTier = e.target.value;
+        currentTier = e.target.value.toUpperCase();
         initMapGrid();
         if (currentMapId) renderResult({ scroll: false }); 
     });
 }
 
-// 👑 안전하게 데이터를 꺼내오는 마스터 유틸 함수 (대소문자 완벽 대응)
-function getTargetMapData(reg, tier, mapId) {
-    const rKey = reg.toLowerCase();
-    const tKey = tier.toLowerCase();
-    
-    const regBox = mapData[rKey] || mapData[rKey.toUpperCase()];
-    if (!regBox) return null;
-    
-    const tierBox = regBox[tKey] || regBox[tKey.toUpperCase()];
-    if (!tierBox) return null;
-    
-    return tierBox[mapId] || tierBox[mapId.toLowerCase()] || tierBox[mapId.toUpperCase()];
-}
-
 // 1. 맵 타일 그리드 렌더링
 function initMapGrid() {
+    if (!mapGrid) return;
     mapGrid.innerHTML = '';
 
     mapCategories.forEach(category => {
@@ -133,7 +143,6 @@ function initMapGrid() {
             btn.dataset.mapId = mapId;
             if (currentMapId === mapId) btn.classList.add('selected');
             
-            // 👑 [맵 이름 한글화 버그 박멸] 데이터가 깨져있어도 사전에서 한글명을 칼같이 매칭!
             const fallbackName = mapKoreanNamesFallback[mapId] || mapId;
             const mapName = data && data.name ? (data.name.includes(' (') ? data.name.split(' (')[0] : data.name) : fallbackName; 
 
@@ -156,7 +165,7 @@ function initMapGrid() {
                 if (btn.classList.contains('selected')) {
                     btn.classList.remove('selected');
                     currentMapId = null;
-                    resultBox.classList.add('hidden'); 
+                    if (resultBox) resultBox.classList.add('hidden'); 
                 } else {
                     document.querySelectorAll('.map-btn').forEach(b => b.classList.remove('selected'));
                     btn.classList.add('selected');
@@ -198,7 +207,9 @@ function renderResult(options = { scroll: true }) {
     const data = getTargetMapData(currentRegion, currentTier, currentMapId);
 
     if (!data) {
-        roleDataContent.innerHTML = '<p style="grid-column:1/-1; text-align:center; padding:20px;">공식 홈페이지 데이터를 연동 중입니다. 잠시만 기다려주세요!</p>';
+        if (roleDataContent) {
+            roleDataContent.innerHTML = '<p style="grid-column:1/-1; text-align:center; padding:20px;">선택한 조건의 메타 데이터를 불러올 수 없습니다.</p>';
+        }
         return;
     }
 
@@ -207,38 +218,46 @@ function renderResult(options = { scroll: true }) {
     let currentCategory = '';
     mapCategories.forEach(cat => { if (cat.maps.includes(currentMapId)) currentCategory = cat.id; });
 
-    const roleName = currentRole === 'tank' ? '돌격' : currentRole === 'damage' ? '공격' : '지원';
-    const cleanMapName = data.name ? data.name.split(' (')[0] : mapKoreanNamesFallback[currentMapId];
-    resultTitle.textContent = `${cleanMapName} - ${roleName} 메타`;
+    if (resultTitle) {
+        const roleName = currentRole === 'tank' ? '돌격' : currentRole === 'damage' ? '공격' : '지원';
+        const cleanMapName = data.name ? data.name.split(' (')[0] : mapKoreanNamesFallback[currentMapId];
+        resultTitle.textContent = `${cleanMapName} - ${roleName} 메타`;
+    }
 
-    const combinedStrategies = [...(data.strategy || []), ...(modeStrategies[currentCategory] || [])];
-    strategyList.innerHTML = '';
-    combinedStrategies.forEach(text => {
-        const li = document.createElement('li');
-        li.innerHTML = formatTextWithBadges(text);
-        strategyList.appendChild(li);
-    });
+    if (strategyList) {
+        const combinedStrategies = [...(data.strategy || []), ...(modeStrategies[currentCategory] || [])];
+        strategyList.innerHTML = '';
+        combinedStrategies.forEach(text => {
+            const li = document.createElement('li');
+            li.innerHTML = formatTextWithBadges(text);
+            strategyList.appendChild(li);
+        });
+    }
 
-    const flatHeroesHtml = roleData.heroes.map((h, i) => {
-        const pureName = h.split(' (')[0].trim();
-        const statStr = h.includes(' (') ? h.split(' (')[1].replace(')', '') : '';
-        const krName = heroNameEnKrMap[pureName] || pureName;
-        return `<div style="display:flex; justify-content:space-between; background:rgba(255,255,255,0.03); padding:8px; border-radius:4px; margin-bottom:6px;">
-            <span><strong>👑 ${i+1}위</strong> ${krName}</span>
-            <span style="font-size:0.9em; color:#cbd5e1;">${statStr}</span>
-        </div>`;
-    }).join('');
+    if (roleDataContent) {
+        const flatHeroesHtml = (roleData.heroes || []).map((h, i) => {
+            const pureName = h.split(' (')[0].trim();
+            const statStr = h.includes(' (') ? h.split(' (')[1].replace(')', '') : '';
+            const krName = heroNameEnKrMap[pureName] || pureName;
+            return `<div style="display:flex; justify-content:space-between; background:rgba(255,255,255,0.03); padding:8px; border-radius:4px; margin-bottom:6px;">
+                <span><strong>👑 ${i+1}위</strong> ${krName}</span>
+                <span style="font-size:0.9em; color:#cbd5e1;">${statStr}</span>
+            </div>`;
+        }).join('');
 
-    roleDataContent.innerHTML = `
-        <div class="card"><h3>⭐ 추천 영웅 Top 5</h3><div style="margin-top:15px;">${flatHeroesHtml || '<p>통계 수집 중</p>'}</div></div>
-        <div class="card"><h3>🤝 조합 시너지</h3><div style="margin-top:15px; color:#f99e1a;">${roleData.synergy ? roleData.synergy.join('<br>') : '추천 조합 연동 중'}</div></div>
-    `;
+        roleDataContent.innerHTML = `
+            <div class="card"><h3>⭐ 추천 영웅 Top 5</h3><div style="margin-top:15px;">${flatHeroesHtml || '<p>통계 수집 중</p>'}</div></div>
+            <div class="card"><h3>🤝 조합 시너지</h3><div style="margin-top:15px; color:#f99e1a;">${roleData.synergy ? roleData.synergy.join('<br>') : '추천 조합 연동 중'}</div></div>
+        `;
+    }
 
-    resultBox.classList.remove('hidden');
-    if (options.scroll) {
-        setTimeout(() => {
-            resultBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 100);
+    if (resultBox) {
+        resultBox.classList.remove('hidden');
+        if (options.scroll) {
+            setTimeout(() => {
+                resultBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
     }
 }
 
