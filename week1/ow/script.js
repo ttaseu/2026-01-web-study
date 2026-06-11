@@ -189,18 +189,27 @@ function initMapGrid() {
         gridDiv.className = 'map-grid';
 
         category.maps.forEach(mapId => {
-            // 👑 정밀 보정: [현재지역][현재티어] 삼중 트리 분리 체크 레이어 적용
-            const regBox = mapData[currentRegion] || mapData['asia'];
-            const tierBox = regBox ? (regBox[currentTier] || regBox['all']) : null;
-            const data = tierBox ? tierBox[mapId] : null;
-            if (!data) return; 
+            // 👑 [초강력 대소문자 매칭 패치] 
+            // 변수(asia)와 데이터(ASIA)의 대소문자 불일치로 인해 맵이 안 뜨는 버그를 완벽하게 차단합니다.
+            const regKey = currentRegion ? currentRegion.toLowerCase() : 'asia';
+            const tierKey = currentTier ? currentTier.toLowerCase() : 'all';
+
+            const regBox = mapData[regKey] || mapData[regKey.toUpperCase()] || mapData['asia'] || mapData['ASIA'];
+            const tierBox = regBox ? (regBox[tierKey] || regBox[tierKey.toUpperCase()] || regBox['all'] || regBox['ALL']) : null;
+            const data = tierBox ? (tierBox[mapId] || tierBox['all-maps']) : null;
+            
+            // 데이터가 없으면 return하지 않고, 임시 뼈대 이름을 만들어 타일이 무조건 뜨도록 보정합니다.
+            if (!data) {
+                console.warn(`[옵기본 경고] ${mapId} 데이터를 mapData에서 찾지 못했습니다. 폴백 모드로 타일을 생성합니다.`);
+            }
 
             const btn = document.createElement('button');
             btn.className = 'map-btn';
             btn.dataset.mapId = mapId;
             if (currentMapId === mapId) btn.classList.add('selected'); // 선택 유지 상태값 동기화
             
-            const mapName = data.name.includes(' (') ? data.name.split(' (')[0] : data.name; 
+            // 안전하게 표시할 맵 이름 추출
+            const mapName = data && data.name ? (data.name.includes(' (') ? data.name.split(' (')[0] : data.name) : mapId; 
             
             let mapImageName = mapName;
             if (mapId === "gibraltar") mapImageName = "감시 기지- 지브롤터";
