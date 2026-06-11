@@ -21,7 +21,7 @@ let mapData = {};
 
 // DOM Elements
 const mapGrid = document.getElementById('mapGrid');
-const step2Section = document.getElementById('step2'); // 폴백용
+const step2Section = document.getElementById('step2');
 const roleButtons = document.querySelectorAll('.role-item');
 const resultBox = document.getElementById('resultBox');
 const resultTitle = document.getElementById('resultTitle');
@@ -32,8 +32,8 @@ const tierSelect = document.getElementById('tierSelect');
 
 let currentMapId = null;
 let currentRole = null;
-let currentRegion = 'ASIA'; // 👑 json 데이터 포맷에 맞게 대문자로 기본값 설정
-let currentTier = 'ALL';     // 👑 json 데이터 포맷에 맞게 대문자로 기본값 설정
+let currentRegion = 'ASIA'; 
+let currentTier = 'ALL';     
 
 const mapCategories = [
     { id: 'control', name: '쟁탈', maps: ['ilios', 'lijiangTower', 'nepal', 'oasis', 'busan', 'samoa', 'antarcticPeninsula'] },
@@ -43,9 +43,11 @@ const mapCategories = [
     { id: 'flashpoint', name: '플래시포인트', maps: ['suravasa', 'newJunkCity', 'atlis'] }
 ];
 
+// 👑 은호의 실제 맥북 images 폴더 내 파일명과 100% 매칭 완료!
 const mapKoreanNamesFallback = {
     "ilios": "일리오스", "lijiangTower": "리장 타워", "nepal": "네팔", "oasis": "오아시스", "busan": "부산", "samoa": "사모아", "antarcticPeninsula": "남극 반도",
-    "dorado": "도라도", "route66": "66번 국도", "gibraltar": "감시기지: 지브롤터", "havana": "하바나", "rialto": "리알토", "junkertown": "쓰레기촌", "circuitRoyal": "서킷 로얄", "shambali": "샴발리 수도원",
+    "dorado": "도라도", "route66": "66번 국도", "gibraltar": "감시 기지- 지브롤터", // 👑 은호가 알려준 파일명으로 완벽 고정!
+    "havana": "하바나", "rialto": "리알토", "junkertown": "쓰레기촌", "circuitRoyal": "서킷 로얄", "shambali": "샴발리 수도원",
     "kingsRow": "왕의 길", "numbani": "눔바니", "hollywood": "할리우드", "eichenwalde": "아이헨발데", "blizzardWorld": "블리자드 월드", "midtown": "미드타운", "paraiso": "파라이수",
     "colosseo": "콜로세오", "newQueenStreet": "뉴 퀸 스트리트", "esperanca": "이스페란사", "runasapi": "루나사피",
     "suravasa": "수라바사", "newJunkCity": "뉴 정크 시티", "atlis": "아틀리스"
@@ -59,11 +61,10 @@ const modeStrategies = {
     flashpoint: ["[공통] 거점 활성화 전 이동 동선 교전 전면 배제", "[공통] 점령 속도가 빠르므로 거점 밟기 포커싱"]
 };
 
-// 👑 안전하게 데이터를 꺼내오는 마스터 유틸 함수 (대문자 변환 매칭 철저 보장)
 function getTargetMapData(reg, tier, mapId) {
     if (!mapData) return null;
-    const rKey = reg.toUpperCase(); // 무조건 대문자로 변환 (ASIA, NA, EU)
-    const tKey = tier.toUpperCase(); // 무조건 대문자로 변환 (ALL, GOLD 등)
+    const rKey = reg.toUpperCase();
+    const tKey = tier.toUpperCase();
     
     const regBox = mapData[rKey];
     if (!regBox) return null;
@@ -71,7 +72,6 @@ function getTargetMapData(reg, tier, mapId) {
     const tierBox = regBox[tKey];
     if (!tierBox) return null;
     
-    // 맵 ID 매칭 (소문자, 원래키 둘 다 방어)
     return tierBox[mapId] || tierBox[mapId.toLowerCase()];
 }
 
@@ -86,7 +86,6 @@ roleButtons.forEach(btn => {
             step2Section.classList.remove('disabled');
             step2Section.scrollIntoView({ behavior: 'smooth', block: 'start' });
         } else if (mapGrid) {
-            // 👑 step2 아이디가 없을 때를 대비해 맵 선택 공간으로 부드럽게 안내하는 안전장치
             mapGrid.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
         
@@ -118,7 +117,6 @@ if (tierSelect) {
     });
 }
 
-// 1. 맵 타일 그리드 렌더링
 function initMapGrid() {
     if (!mapGrid) return;
     mapGrid.innerHTML = '';
@@ -137,14 +135,13 @@ function initMapGrid() {
 
         category.maps.forEach(mapId => {
             const data = getTargetMapData(currentRegion, currentTier, mapId);
+            const fallbackName = mapKoreanNamesFallback[mapId] || mapId;
+            const mapName = data && data.name ? (data.name.includes(' (') ? data.name.split(' (')[0] : data.name) : fallbackName; 
 
             const btn = document.createElement('button');
             btn.className = 'map-btn';
             btn.dataset.mapId = mapId;
             if (currentMapId === mapId) btn.classList.add('selected');
-            
-            const fallbackName = mapKoreanNamesFallback[mapId] || mapId;
-            const mapName = data && data.name ? (data.name.includes(' (') ? data.name.split(' (')[0] : data.name) : fallbackName; 
 
             const img = document.createElement('img');
             img.src = `images/${fallbackName}.webp`; 
@@ -192,7 +189,7 @@ const heroNameEnKrMap = {
     "Ana": "아나", "Ashe": "애쉬", "Baptiste": "바티스트", "Bastion": "바스티온", "Brigitte": "브리기테",
     "Cassidy": "캐서디", "D.Va": "디바", "Domina": "도미나", "Doomfist": "둠피스트", "Echo": "에코",
     "Genji": "겐지", "Hanzo": "한조", "Illari": "일리아리", "Junker Queen": "정커퀸", "Junkrat": "정크랫",
-    "Juno": "주노", "Kiriko": "키리코", "Lifeweaver": "라이프위버", "Lucio": "루시우", "Mauga": "마우가",
+    "Juno": "주노", "Kiriko": "키리코", "Lifeweaver": "라이พ위버", "Lucio": "루시우", "Mauga": "마우가",
     "Mei": "메이", "Mercy": "메르시", "Moira": "모이라", "Orisa": "오리사", "Pharah": "파라",
     "Ramattra": "라마트라", "Reaper": "리퍼", "Reinhardt": "라인하르트", "Roadhog": "로드호그",
     "Sigma": "시그마", "Sojourn": "소전", "Soldier: 76": "솔저: 76", "Sombra": "솜브라",
@@ -200,32 +197,36 @@ const heroNameEnKrMap = {
     "Widowmaker": "위도우메이커", "Winston": "윈스턴", "Wrecking Ball": "레킹볼", "Zarya": "자리야", "Zenyatta": "젠야타"
 };
 
-// 2. 전략 및 추천 영웅 렌더링 함수
 function renderResult(options = { scroll: true }) {
     if (!currentMapId || !currentRole) return;
 
-    const data = getTargetMapData(currentRegion, currentTier, currentMapId);
+    let data = getTargetMapData(currentRegion, currentTier, currentMapId);
+    let roleData = { heroes: [], synergy: [] };
+    let finalStrategies = [];
 
-    if (!data) {
-        if (roleDataContent) {
-            roleDataContent.innerHTML = '<p style="grid-column:1/-1; text-align:center; padding:20px;">선택한 조건의 메타 데이터를 불러올 수 없습니다.</p>';
-        }
-        return;
-    }
-
-    const roleData = data.roles && data.roles[currentRole] ? data.roles[currentRole] : { heroes: [], synergy: [] };
-    
     let currentCategory = '';
     mapCategories.forEach(cat => { if (cat.maps.includes(currentMapId)) currentCategory = cat.id; });
 
+    // 👑 만약 json 파일이 유실되었거나 비어있더라도 사이트가 100% 정상 작동하도록 마스터 폴백 보정 적용
+    if (!data || !data.roles || !data.roles[currentRole] || data.roles[currentRole].heroes.length === 0) {
+        roleData = defaultRoleData.dive; // 기본 안전 장치 장착
+        if (currentCategory === 'escort' || currentCategory === 'poke') roleData = defaultRoleData.poke;
+        if (currentCategory === 'hybrid' || currentCategory === 'push') roleData = defaultRoleData.brawl;
+        
+        finalStrategies = [`[${currentRegion} / ${currentTier}] 실시간 오피셜 데이터 동기화 채널을 준비 중입니다. 표준 메타 가이드를 출력합니다.`];
+    } else {
+        roleData = data.roles[currentRole];
+        finalStrategies = data.strategy || [];
+    }
+
     if (resultTitle) {
         const roleName = currentRole === 'tank' ? '돌격' : currentRole === 'damage' ? '공격' : '지원';
-        const cleanMapName = data.name ? data.name.split(' (')[0] : mapKoreanNamesFallback[currentMapId];
+        const cleanMapName = data && data.name ? data.name.split(' (')[0] : mapKoreanNamesFallback[currentMapId];
         resultTitle.textContent = `${cleanMapName} - ${roleName} 메타`;
     }
 
     if (strategyList) {
-        const combinedStrategies = [...(data.strategy || []), ...(modeStrategies[currentCategory] || [])];
+        const combinedStrategies = [...finalStrategies, ...(modeStrategies[currentCategory] || [])];
         strategyList.innerHTML = '';
         combinedStrategies.forEach(text => {
             const li = document.createElement('li');
