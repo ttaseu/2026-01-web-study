@@ -30,43 +30,48 @@ const roleDataContent = document.getElementById('roleDataContent');
 const regionTabButtons = document.querySelectorAll('.ow-tab-btn');
 const tierSelect = document.getElementById('tierSelect');
 
-// 댓글 및 좋아요
-const commentForm = document.getElementById('commentForm');
-const commentNickname = document.getElementById('commentNickname');
-const commentContent = document.getElementById('commentContent');
-const commentList = document.getElementById('commentList');
-const commentSubmitBtn = document.getElementById('commentSubmitBtn');
-const likeBtn = document.getElementById('likeBtn');
-const likeCount = document.getElementById('likeCount');
-
 let currentMapId = null;
 let currentRole = null;
 let currentRegion = 'asia'; 
 let currentTier = 'all';    
 
-let userSessionId = localStorage.getItem('owMapMaster_sessionId') || `user_${Date.now()}`;
-localStorage.setItem('owMapMaster_sessionId', userSessionId);
+const mapCategories = [
+    { id: 'control', name: '쟁탈', maps: ['ilios', 'lijiangTower', 'nepal', 'oasis', 'busan', 'samoa', 'antarcticPeninsula'] },
+    { id: 'escort', name: '호위', maps: ['dorado', 'route66', 'gibraltar', 'havana', 'rialto', 'junkertown', 'circuitRoyal', 'shambali'] },
+    { id: 'hybrid', name: '혼합', maps: ['kingsRow', 'numbani', 'hollywood', 'eichenwalde', 'blizzardWorld', 'midtown', 'paraiso'] },
+    { id: 'push', name: '밀기', maps: ['colosseo', 'newQueenStreet', 'esperanca', 'runasapi'] },
+    { id: 'flashpoint', name: '플래시포인트', maps: ['suravasa', 'newJunkCity', 'atlis'] }
+];
 
-let isLikedByCurrentUser = false;
-const mapLikesCache = {};
-let currentLikesCount = 0; 
-let likeDebounceTimer = null;
-let userInteractedSinceLoad = false;
-let initialLikeState = false;
+const mapKoreanNamesFallback = {
+    "ilios": "일리오스", "lijiangTower": "리장 타워", "nepal": "네팔", "oasis": "오아시스", "busan": "부산", "samoa": "사모아", "antarcticPeninsula": "남극 반도",
+    "dorado": "도라도", "route66": "66번 국도", "gibraltar": "감시기지: 지브롤터", "havana": "하바나", "rialto": "리알토", "junkertown": "쓰레기촌", "circuitRoyal": "서킷 로얄", "shambali": "샴발리 수도원",
+    "kingsRow": "왕의 길", "numbani": "눔바니", "hollywood": "할리우드", "eichenwalde": "아이헨발데", "blizzardWorld": "블리자드 월드", "midtown": "미드타운", "paraiso": "파라이수",
+    "colosseo": "콜로세오", "newQueenStreet": "뉴 퀸 스트리트", "esperanca": "이스페란사", "runasapi": "루나사피",
+    "suravasa": "수라바사", "newJunkCity": "뉴 정크 시티", "atlis": "아틀리스"
+};
 
-// 역할군 선택
+const modeStrategies = {
+    control: ["[공통] 첫 한타 거점 선점 후 저지선 형성 중요", "[공통] 상대 카운터 궁극기 체크 필수"],
+    escort: ["[공통] 구간마다 유기적인 영웅 스왑 운영 권장", "[공통] 경유지 통과 후 고지대 자리 선점 우선"],
+    hybrid: ["[공통] A거점 돌파 후 화물 호위 지형지물 활용", "[공통] 공격 시 오프닝 픽을 위한 사이드 흔들기"],
+    push: ["[공통] 로봇 리드 시 과감한 궁극기 투자로 이득 극대화", "[공통] 리스폰 관리 및 잘 지는 턴 넘기기 연습"],
+    push: ["[공통] 로봇 리드 시 과감한 궁극기 투자로 이득 극대화", "[공통] 리스폰 관리 및 잘 지는 턴 넘기기 연습"],
+    flashpoint: ["[공통] 거점 활성화 전 이동 동선 교전 전면 배제", "[공통] 점령 속도가 빠르므로 거점 밟기 포커싱"]
+};
+
+// 역할군 선택 이벤트
 roleButtons.forEach(btn => {
     btn.addEventListener('click', () => {
         roleButtons.forEach(b => b.classList.remove('selected'));
         btn.classList.add('selected');
         currentRole = btn.dataset.role;
         step2Section.classList.remove('disabled');
-        step2Section.scrollIntoView({ behavior: 'smooth', block: 'start' });
         if (currentMapId) renderResult();
     });
 });
 
-// 서버 선택 탭
+// 서버 선택 탭 이벤트
 if (regionTabButtons.length > 0) {
     regionTabButtons.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -81,6 +86,7 @@ if (regionTabButtons.length > 0) {
     });
 }
 
+// 티어 선택 이벤트
 if (tierSelect) {
     tierSelect.addEventListener('change', (e) => {
         currentTier = e.target.value;
@@ -89,31 +95,21 @@ if (tierSelect) {
     });
 }
 
-function updateLikeButtonUI(likesCount, isLiked) {
-    currentLikesCount = likesCount;
-    isLikedByCurrentUser = isLiked;
-    likeCount.textContent = likesCount > 0 ? likesCount : '0';
-    const textNode = likeBtn.childNodes[0];
-    textNode.textContent = isLiked ? '👍 추천 완료 ' : '👍 추천해요 ';
+// 👑 안전하게 데이터를 꺼내오는 마스터 유틸 함수 (대소문자 완벽 대응)
+function getTargetMapData(reg, tier, mapId) {
+    const rKey = reg.toLowerCase();
+    const tKey = tier.toLowerCase();
+    
+    const regBox = mapData[rKey] || mapData[rKey.toUpperCase()];
+    if (!regBox) return null;
+    
+    const tierBox = regBox[tKey] || regBox[tKey.toUpperCase()];
+    if (!tierBox) return null;
+    
+    return tierBox[mapId] || tierBox[mapId.toLowerCase()] || tierBox[mapId.toUpperCase()];
 }
 
-const mapCategories = [
-    { id: 'control', name: '쟁탈', maps: ['ilios', 'lijiangTower', 'nepal', 'oasis', 'busan', 'samoa', 'antarcticPeninsula'] },
-    { id: 'escort', name: '호위', maps: ['dorado', 'route66', 'gibraltar', 'havana', 'rialto', 'junkertown', 'circuitRoyal', 'shambali'] },
-    { id: 'hybrid', name: '혼합', maps: ['kingsRow', 'numbani', 'hollywood', 'eichenwalde', 'blizzardWorld', 'midtown', 'paraiso'] },
-    { id: 'push', name: '밀기', maps: ['colosseo', 'newQueenStreet', 'esperanca', 'runasapi'] },
-    { id: 'flashpoint', name: '플래시포인트', maps: ['suravasa', 'newJunkCity', 'atlis'] }
-];
-
-const modeStrategies = {
-    control: ["[공통] 첫 한타 거점 선점 후 저지선 형성 중요", "[공통] 상대 카운터 궁극기 체크 필수"],
-    escort: ["[공통] 구간마다 유기적인 영웅 스왑 운영 권장", "[공통] 경유지 통과 후 고지대 자리 선점 우선"],
-    hybrid: ["[공통] A거점 돌파 후 화물 호위 지형지물 활용", "[공통] 공격 시 오프닝 픽을 위한 사이드 흔들기"],
-    push: ["[공통] 로봇 리드 시 과감한 궁극기 투자로 이득 극대화", "[공통] 리스폰 관리 및 잘 지는 턴 넘기기 연습"],
-    flashpoint: ["[공통] 거점 활성화 전 이동 동선 교전 전면 배제", "[공통] 점령 속도가 빠르므로 거점 밟기 포커싱"]
-};
-
-// 1. 맵 타일 그리드 빌더
+// 1. 맵 타일 그리드 렌더링
 function initMapGrid() {
     mapGrid.innerHTML = '';
 
@@ -130,54 +126,19 @@ function initMapGrid() {
         gridDiv.className = 'map-grid';
 
         category.maps.forEach(mapId => {
-            // 👑 대소문자 매칭 완벽 방어 레이어 주입
-            const regKey = currentRegion.toLowerCase();
-            const tierKey = currentTier.toLowerCase();
-            const regBox = mapData[regKey] || mapData[regKey.toUpperCase()] || mapData['asia'] || mapData['ASIA'];
-            const tierBox = regBox ? (regBox[tierKey] || regBox[tierKey.toUpperCase()] || regBox['all'] || regBox['ALL']) : null;
-            const data = tierBox ? (tierBox[mapId] || tierBox['all-maps']) : null;
+            const data = getTargetMapData(currentRegion, currentTier, mapId);
 
             const btn = document.createElement('button');
             btn.className = 'map-btn';
             btn.dataset.mapId = mapId;
             if (currentMapId === mapId) btn.classList.add('selected');
             
-            const mapName = data && data.name ? (data.name.includes(' (') ? data.name.split(' (')[0] : data.name) : mapId; 
-            
-            // 👑 [Vercel 404 한글 깨짐 우회 패치] 이미지 주소 매칭 영문 폴백 보정
-            let mapImageName = mapName;
-            if (mapId === "gibraltar") mapImageName = "감시 기지- 지브롤터";
-            else if (mapId === "kingsRow") mapImageName = "왕의 길";
-            else if (mapId === "numbani") mapImageName = "눔바니";
-            else if (mapId === "hollywood") mapImageName = "할리우드";
-            else if (mapId === "eichenwalde") mapImageName = "아이헨발데";
-            else if (mapId === "blizzardWorld") mapImageName = "블리자드 월드";
-            else if (mapId === "midtown") mapImageName = "미드타운";
-            else if (mapId === "paraiso") mapImageName = "파라이수";
-            else if (mapId === "ilios") mapImageName = "일리오스";
-            else if (mapId === "lijiangTower") mapImageName = "리장 타워";
-            else if (mapId === "nepal") mapImageName = "네팔";
-            else if (mapId === "oasis") mapImageName = "오아시스";
-            else if (mapId === "busan") mapImageName = "부산";
-            else if (mapId === "samoa") mapImageName = "사모아";
-            else if (mapId === "antarcticPeninsula") mapImageName = "남극 반도";
-            else if (mapId === "dorado") mapImageName = "도라도";
-            else if (mapId === "route66") mapImageName = "66번 국도";
-            else if (mapId === "havana") mapImageName = "하바나";
-            else if (mapId === "rialto") mapImageName = "리알토";
-            else if (mapId === "junkertown") mapImageName = "쓰레기촌";
-            else if (mapId === "circuitRoyal") mapImageName = "서킷 로얄";
-            else if (mapId === "shambali") mapImageName = "샴발리 수도원";
-            else if (mapId === "colosseo") mapImageName = "콜로세오";
-            else if (mapId === "newQueenStreet") mapImageName = "뉴 퀸 스트리트";
-            else if (mapId === "esperanca") mapImageName = "이스페란사";
-            else if (mapId === "runasapi") mapImageName = "루나사피";
-            else if (mapId === "suravasa") mapImageName = "수라바사";
-            else if (mapId === "newJunkCity") mapImageName = "뉴 정크 시티";
-            else if (mapId === "atlis") mapImageName = "아틀리스";
+            // 👑 [맵 이름 한글화 버그 박멸] 데이터가 깨져있어도 사전에서 한글명을 칼같이 매칭!
+            const fallbackName = mapKoreanNamesFallback[mapId] || mapId;
+            const mapName = data && data.name ? (data.name.includes(' (') ? data.name.split(' (')[0] : data.name) : fallbackName; 
 
             const img = document.createElement('img');
-            img.src = `images/${mapImageName}.webp`; 
+            img.src = `images/${fallbackName}.webp`; 
             img.onerror = () => {
                 img.src = `https://placehold.co/400x225/1E1E1E/FF5A36?text=${encodeURIComponent(mapName)}`;
             };
@@ -230,18 +191,13 @@ const heroNameEnKrMap = {
     "Widowmaker": "위도우메이커", "Winston": "윈스턴", "Wrecking Ball": "레킹볼", "Zarya": "자리야", "Zenyatta": "젠야타"
 };
 
+// 2. 전략 및 추천 영웅 렌더링 함수
 function renderResult(options = { scroll: true }) {
     if (!currentMapId || !currentRole) return;
 
-    // 👑 대소문자 상자 탐색 우회 매칭 최적화
-    const regKey = currentRegion.toLowerCase();
-    const tierKey = currentTier.toLowerCase();
-    const regBox = mapData[regKey] || mapData[regKey.toUpperCase()] || mapData['asia'] || mapData['ASIA'];
-    const tierBox = regBox ? (regBox[tierKey] || regBox[tierKey.toUpperCase()] || regBox['all'] || regBox['ALL']) : null;
-    const data = tierBox ? (tierBox[currentMapId] || tierBox['all-maps']) : null;
+    const data = getTargetMapData(currentRegion, currentTier, currentMapId);
 
     if (!data) {
-        console.error("데이터 바인딩 매칭 장벽 발생:", { currentRegion, currentTier, currentMapId });
         roleDataContent.innerHTML = '<p style="grid-column:1/-1; text-align:center; padding:20px;">공식 홈페이지 데이터를 연동 중입니다. 잠시만 기다려주세요!</p>';
         return;
     }
@@ -252,7 +208,8 @@ function renderResult(options = { scroll: true }) {
     mapCategories.forEach(cat => { if (cat.maps.includes(currentMapId)) currentCategory = cat.id; });
 
     const roleName = currentRole === 'tank' ? '돌격' : currentRole === 'damage' ? '공격' : '지원';
-    resultTitle.textContent = `${data.name.split(' (')[0]} - ${roleName} 메타`;
+    const cleanMapName = data.name ? data.name.split(' (')[0] : mapKoreanNamesFallback[currentMapId];
+    resultTitle.textContent = `${cleanMapName} - ${roleName} 메타`;
 
     const combinedStrategies = [...(data.strategy || []), ...(modeStrategies[currentCategory] || [])];
     strategyList.innerHTML = '';
@@ -262,7 +219,6 @@ function renderResult(options = { scroll: true }) {
         strategyList.appendChild(li);
     });
 
-    // Top 5 매핑 리스트 빌드
     const flatHeroesHtml = roleData.heroes.map((h, i) => {
         const pureName = h.split(' (')[0].trim();
         const statStr = h.includes(' (') ? h.split(' (')[1].replace(')', '') : '';
@@ -279,7 +235,11 @@ function renderResult(options = { scroll: true }) {
     `;
 
     resultBox.classList.remove('hidden');
-    if (options.scroll) resultBox.scrollIntoView({ behavior: 'smooth' });
+    if (options.scroll) {
+        setTimeout(() => {
+            resultBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+    }
 }
 
 async function initApp() {
